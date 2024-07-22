@@ -1,22 +1,28 @@
 """
 User Object
 """
-from soundcld.resource.base import BaseData, BaseItem
-from soundcld.resource.user import BasicUser, User
-from soundcld.resource.visual import Visuals
 from typing import Optional, Tuple
 from dataclasses import dataclass
 from datetime import datetime
+from soundcld.resource.user import BasicUser, User
+from soundcld.resource.base import BaseData, BaseItem
+from soundcld.resource.visual import Visuals
 
 
 @dataclass
 class Format(BaseData):
+    """
+    The Track's Transcoding Format
+    """
     protocol: str
     mime_type: str
 
 
 @dataclass
 class Transcoding(BaseData):
+    """
+    Available Transcoding For Track
+    """
     url: str
     preset: str
     duration: int
@@ -27,11 +33,17 @@ class Transcoding(BaseData):
 
 @dataclass
 class Media(BaseData):
+    """
+    List Of Available Transcodings
+    """
     transcodings: Tuple[Transcoding, ...]
 
 
 @dataclass
 class PublisherMetadata(BaseData):
+    """
+    Publisher info
+    """
     id: str
     urn: str
     contains_music: bool
@@ -39,6 +51,9 @@ class PublisherMetadata(BaseData):
 
 @dataclass
 class BaseTrack(BaseItem):
+    """
+    Track With Base Information
+    """
     caption: Optional[str]
     comment_count: Optional[int]
     commentable: bool
@@ -64,16 +79,25 @@ class BaseTrack(BaseItem):
 
 @dataclass
 class Track(BaseTrack):
+    """
+    Track With Full User Information
+    """
     user: User
 
 
 @dataclass
 class BasicTrack(BaseTrack):
+    """
+    Track With Partial User Information
+    """
     user: BasicUser
 
 
 @dataclass
 class MiniTrack(BaseData):
+    """
+    Track With Minimal Info
+    """
     id: int
     kind: str
     monetization_model: str
@@ -82,6 +106,9 @@ class MiniTrack(BaseData):
 
 @dataclass
 class CommentTrack(BaseData):
+    """
+    Track Comment With Partial User Info
+    """
     artwork_url: Optional[str]
     caption: Optional[str]
     id: int

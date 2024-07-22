@@ -1,15 +1,18 @@
 """
 Base Object For SoundCloud
 """
-from dacite import Config, from_dict
-from typing import Optional, List
+from typing import Optional
 from dataclasses import dataclass
 from datetime import datetime
+from dacite import Config, from_dict
 import dateutil.parser
 
 
 @dataclass
 class BaseData:
+    """
+    Base Data Object
+    """
     dacite_config = Config(
         type_hooks={datetime: dateutil.parser.isoparse},
         cast=[tuple]
@@ -17,10 +20,16 @@ class BaseData:
 
     @classmethod
     def from_dict(cls, d: dict):
+        """
+        Converts Given Dict To Given Class Object
+        """
         return from_dict(cls, d, cls.dacite_config)
 
 @dataclass
 class BaseItem(BaseData):
+    """
+    Base Item Is Common Datas
+    """
     artwork_url: Optional[str]
     created_at: datetime
     description: Optional[str]
@@ -45,9 +54,3 @@ class BaseItem(BaseData):
     title: Optional[str]
     uri: str
     user_id: int
-
-    def get_all_tags(self) -> List[str]:
-        tags = []
-        if self.genre:
-            tags.append(self.genre)
-        return tags + [tag.strip() for tag in self.tag_list.split('"') if tag.strip()]

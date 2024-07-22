@@ -1,25 +1,34 @@
 """
 User Object
 """
-from soundcld.resource.visual import Visuals
-from soundcld.resource.base import BaseData
 from typing import Optional, Tuple
 from dataclasses import dataclass
 from datetime import datetime
+from soundcld.resource.base import BaseData
+from soundcld.resource.visual import Visuals
 
 
 @dataclass
 class Product(BaseData):
+    """
+    Product ID
+    """
     id: str
 
 
 @dataclass
 class CreatorSubscription(BaseData):
+    """
+    Subscription Kind
+    """
     product: Product
 
 
 @dataclass
 class Badges(BaseData):
+    """
+    User Badges
+    """
     pro: bool
     pro_unlimited: bool
     verified: bool
@@ -27,6 +36,9 @@ class Badges(BaseData):
 
 @dataclass
 class BasicUser(BaseData):
+    """
+    User With Partial Information
+    """
     avatar_url: Optional[str]
     first_name: Optional[str]
     followers_count: Optional[int]
@@ -50,6 +62,9 @@ class BasicUser(BaseData):
 
 @dataclass
 class User(BasicUser):
+    """
+    User With Full Information
+    """
     comments_count: Optional[int]
     created_at: datetime
     creator_subscriptions: Tuple[CreatorSubscription, ...]
@@ -67,18 +82,27 @@ class User(BasicUser):
 
 @dataclass
 class MissingUser(BaseData):
+    """
+    Deleted User
+    """
     id: int
     kind: str
 
 
 @dataclass
 class UserStatus(BaseData):
+    """
+    Status of Authenticated User
+    """
     status: str
     timestamp: str
 
 
 @dataclass
 class UserEmail(BaseData):
+    """
+    Email Address Associated To User
+    """
     address: str
     confirmed: bool
     id: int

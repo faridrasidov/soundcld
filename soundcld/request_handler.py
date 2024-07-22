@@ -4,11 +4,12 @@ Request Handler Of SoundCld
 from dataclasses import dataclass
 from typing import Optional, Dict, Generic, TypeVar, get_args, get_origin, Union, List
 
-import requests
 import string
+import requests
 
-user_agent = 'Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:93.0) Gecko/20100101 Firefox/93.0'
+USER_AGENT = 'Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:93.0) Gecko/20100101 Firefox/93.0'
 T = TypeVar('T')
+
 
 def _convert_dict(d, return_type: T):
     union = get_origin(return_type) is Union
@@ -22,19 +23,22 @@ def _convert_dict(d, return_type: T):
         return return_type.from_dict(d)
     raise ValueError(f"Could not convert {d} to type {return_type}")
 
+
 @dataclass
 class Requester(Generic[T]):
     """
     Core Class To Send Request To Soundcloud
     """
     base = "https://api-v2.soundcloud.com"
+    resource_url = params = headers = ''
     client: T
     format_url: str
     return_type: T
 
-
     def _format_url_and_remove_params(self, kwargs: dict) -> str:
-        format_args = {tup[1] for tup in string.Formatter().parse(self.format_url) if tup[1] is not None}
+        format_args = {tup[1]
+                       for tup in string.Formatter().parse(self.format_url)
+                       if tup[1] is not None}
         args = {}
         for k in list(kwargs.keys()):
             if k in format_args:
@@ -43,7 +47,9 @@ class Requester(Generic[T]):
 
     def _call_params(self, **kwargs) -> None:
         self.resource_url = self._format_url_and_remove_params(kwargs)
-        self.headers = self.client.get_defaultHeader()
+        self.headers = {
+            "User-Agent": USER_AGENT
+        }
         self.params = kwargs
         self.params.update({
             'client_id': self.client.client_id,
@@ -53,8 +59,8 @@ class Requester(Generic[T]):
         if self.client.authorization is not None:
             self.headers["Authorization"] = self.client.authorization
 
-    def _load_href(self, url:str, param:Dict[str, Union[str, int]]) -> Dict[str, Union[str, int]]:
-        with requests.get(url, param, headers=self.headers) as req:
+    def _load_href(self, url: str, param: Dict[str, Union[str, int]]) -> Dict[str, Union[str, int]]:
+        with requests.get(url, param, headers=self.headers, timeout=20) as req:
             if req.status_code not in [200, 201]:
                 return {}
             req.raise_for_status()
@@ -81,6 +87,7 @@ class ListRequester(Requester, Generic[T]):
             resources.append(_convert_dict(resource, self.return_type))
         return resources
 
+
 @dataclass
 class CollectionRequester(Requester, Generic[T]):
     """
@@ -88,7 +95,7 @@ class CollectionRequester(Requester, Generic[T]):
     Returns Collection Of Return Type Data.
     """
 
-    def __call__(self,**kwargs):
+    def __call__(self, **kwargs):
         self._call_params(**kwargs)
         data = self._load_href(self.resource_url, self.params)
         par = {'client_id': self.client.client_id}
