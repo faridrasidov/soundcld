@@ -13,6 +13,7 @@ from requests import HTTPError
 from soundcld.resource.user import User
 from soundcld.resource.track import BasicTrack
 from soundcld.resource.playlist_album import BasicAlbumPlaylist
+from soundcld.resource.comments import Comment, BasicComment
 from soundcld.resource.webprofiles import WebProfile
 from soundcld.resource.aliases import SearchItem
 from soundcld.request_handler import (Requester, ListRequester,
@@ -137,6 +138,30 @@ class SoundCloud:
         link = f'/playlists/{playlist_id}'
         return Requester[BasicAlbumPlaylist](self, link, BasicAlbumPlaylist)()
 
+    def get_track(self, track_id: int):
+        """
+        Get Track By Track ID
+        """
+        link = f'/tracks/{track_id}'
+        return Requester[BasicTrack](self, link, BasicTrack)()
+
+    def get_track_comments(self, track_id: int, sort: str = 'newest', threaded: int = 1):
+        """
+        Get Track Comments By Track ID
+        """
+        param = {'sort': sort,
+                 'threaded': threaded,
+                 }
+        link = f"/tracks/{track_id}/comments"
+        return CollectionRequester[BasicComment](self, link, BasicComment)(**param)
+
+    def get_user(self, user_id: int):
+        """
+        Get User By User ID
+        """
+        link = f'/users/{user_id}'
+        return Requester[User](self, link, User)()
+
     def get_user_tracks(self, user_id: int):
         """
         Get User's Tracks By User ID
@@ -151,6 +176,27 @@ class SoundCloud:
         link = f'/users/{user_id}/toptracks'
         return self.__get_tracks(link)
 
+    def get_user_comments(self, user_id: int):
+        """
+        Get User's Comments By User ID
+        """
+        link = f'/users/{user_id}/comments'
+        return CollectionRequester[Comment](self, link, Comment)()
+
+    def get_related_tracks(self, track_id: int):
+        """
+        Get Related Tracks By Track ID
+        """
+        link = f'/tracks/{track_id}/related'
+        return self.__get_tracks(link)
+
+    def get_track_by_tag(self, tag: str):
+        """
+        Get Recent Tracks With Tag Word
+        """
+        link = f'/recent-tracks/{tag}'
+        return self.__get_tracks(link)
+
     def get_user_albums(self, user_id: int):
         """
         Get User's Albums By User ID
@@ -163,6 +209,20 @@ class SoundCloud:
         Get User's Playlists By User ID
         """
         link = f'/users/{user_id}/playlists_without_albums'
+        return self.__get_album_playlist(link)
+
+    def get_albums_with_track(self, track_id: int):
+        """
+        Get Albums Where Track ID Have Been Added
+        """
+        link = f'/tracks/{track_id}/albums"'
+        return self.__get_album_playlist(link)
+
+    def get_playlists_with_track(self, track_id: int):
+        """
+        Get Playlists Where Track ID Have Been Added
+        """
+        link = f'/tracks/{track_id}/playlists_without_albums"'
         return self.__get_album_playlist(link)
 
     def get_related_artists(self, user_id: int):
