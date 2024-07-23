@@ -8,6 +8,11 @@ def soundcloud_client():
     client = SoundCloud()
     return client, user_id
 
+def test_get_user(soundcloud_client):
+    client, user_id = soundcloud_client
+    user = client.get_user(user_id)
+    assert isinstance(user, User)
+
 def test_get_user_tracks(soundcloud_client):
     client, user_id = soundcloud_client
     user_tracks = client.get_user_tracks(user_id)
@@ -50,5 +55,10 @@ def test_get_user_followings(soundcloud_client):
     for user in followings:
         assert isinstance(user, (User, BasicUser))
 
+def test_get_user_comments(soundcloud_client):
+    client, user_id = soundcloud_client
+    comments = client.get_user_comments(user_id)
+    for comment in comments:
+        assert isinstance(comment, Comment)
 if __name__ == '__main__':
     pytest.main()
