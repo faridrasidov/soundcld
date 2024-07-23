@@ -2,26 +2,40 @@
 Request Handler Of SoundCld
 """
 from dataclasses import dataclass
-from typing import Optional, Dict, Generic, TypeVar, get_args, get_origin, Union, List
+from dacite import MissingValueError
+from typing import Optional, Dict, Generic, TypeVar, get_origin, Union, List
 
 import string
 import requests
+
+from soundcld.resource.user import User, BasicUser
+from soundcld.resource.track import Track, BasicTrack
+from soundcld.resource.playlist_album import AlbumPlaylist, BasicAlbumPlaylist
 
 USER_AGENT = 'Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:93.0) Gecko/20100101 Firefox/93.0'
 T = TypeVar('T')
 
 
-def _convert_dict(d, return_type: T):
+def _convert_dict(data, return_type: T):
     union = get_origin(return_type) is Union
+    data_type = ''
+    union_types = {
+        'user': [User, BasicUser],
+        'track':[Track, BasicTrack],
+        'playlist':[AlbumPlaylist, BasicAlbumPlaylist]
+    }
     if union:
-        for t in get_args(return_type):
-            try:
-                return t.from_dict(d)
-            except Exception:
-                pass
+        if 'kind' in data.keys():
+            data_type = data['kind']
+        if data_type in union_types:
+            for t in union_types[data_type]:
+                try:
+                    return t.from_dict(data)
+                except MissingValueError as err:
+                    print(err)
     else:
-        return return_type.from_dict(d)
-    raise ValueError(f"Could not convert {d} to type {return_type}")
+        return return_type.from_dict(data)
+    raise ValueError(f"Could not convert {data} to type {return_type}")
 
 
 @dataclass
