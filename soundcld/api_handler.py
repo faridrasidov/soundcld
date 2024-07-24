@@ -40,7 +40,7 @@ class SoundCloud:
             self.__get_conf_last()
         if not self.client_id:
             self.generate_client_id()
-        while not self.is_client_id_valid():
+        while not self.is_client_id_valid() and self.auto_id_gen:
             self.generate_client_id()
         self.__set_conf_last()
 
