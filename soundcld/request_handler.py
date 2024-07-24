@@ -2,11 +2,11 @@
 Request Handler Of SoundCld
 """
 from dataclasses import dataclass
-from dacite import MissingValueError
 from typing import Optional, Dict, Generic, TypeVar, get_origin, Union, List
 
 import string
 import requests
+from dacite import MissingValueError
 
 from soundcld.resource.user import User, BasicUser
 from soundcld.resource.track import Track, BasicTrack
