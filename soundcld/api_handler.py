@@ -35,7 +35,7 @@ class SoundCloud:
     app_version: int = 0
     app_locale: str = 'en'
 
-    def __post_init__(self):
+    def __post_init__(self) -> None:
         if os.path.exists(self.confDirectory):
             self.__get_conf_last()
         if not self.client_id:
@@ -44,14 +44,14 @@ class SoundCloud:
             self.generate_client_id()
         self.__set_conf_last()
 
-    def __get_conf_last(self, ):
+    def __get_conf_last(self) -> None:
         with open(self.confDirectory, 'r', encoding='utf-8') as file:
             config = json.load(file)
         self.user_id = config['user_id']
         self.client_id = config['client_id']
         self.app_version = config['app_version']
 
-    def __set_conf_last(self):
+    def __set_conf_last(self) -> None:
         config = {
             'user_id': self.user_id,
             'client_id': self.client_id,
@@ -63,10 +63,10 @@ class SoundCloud:
     def __get_users(self, req: str) -> Generator[User, None, None]:
         return CollectionRequester[User](self, req, User)()
 
-    def __get_tracks(self, req: str) -> Generator[User, None, None]:
+    def __get_tracks(self, req: str) -> Generator[BasicTrack, None, None]:
         return CollectionRequester[BasicTrack](self, req, BasicTrack)()
 
-    def __get_album_playlist(self, req: str) -> Generator[User, None, None]:
+    def __get_album_playlist(self, req: str) -> Generator[BasicAlbumPlaylist, None, None]:
         return CollectionRequester[BasicAlbumPlaylist](self, req, BasicAlbumPlaylist)()
 
     def __get_search(self,
@@ -82,7 +82,7 @@ class SoundCloud:
                  }
         return CollectionRequester[SearchItem](self, req, SearchItem)(**param)
 
-    def generate_client_id(self):
+    def generate_client_id(self) -> None:
         """
         Gets Client ID, App Version And User ID
         """
@@ -131,21 +131,24 @@ class SoundCloud:
                 return False
             raise
 
-    def get_playlist(self, playlist_id: int):
+    def get_playlist(self, playlist_id: int) -> BasicAlbumPlaylist:
         """
         Get Playlist By Playlist ID
         """
         link = f'/playlists/{playlist_id}'
         return Requester[BasicAlbumPlaylist](self, link, BasicAlbumPlaylist)()
 
-    def get_track(self, track_id: int):
+    def get_track(self, track_id: int) -> BasicTrack:
         """
         Get Track By Track ID
         """
         link = f'/tracks/{track_id}'
         return Requester[BasicTrack](self, link, BasicTrack)()
 
-    def get_track_comments(self, track_id: int, sort: str = 'newest', threaded: int = 1):
+    def get_track_comments(self,
+                           track_id: int,
+                           sort: str = 'newest',
+                           threaded: int = 1) -> Generator[BasicComment, None, None]:
         """
         Get Track Comments By Track ID
         """
@@ -155,7 +158,7 @@ class SoundCloud:
         link = f"/tracks/{track_id}/comments"
         return CollectionRequester[BasicComment](self, link, BasicComment)(**param)
 
-    def get_user(self, user_id: int):
+    def get_user(self, user_id: int) -> User:
         """
         Get User By User ID
         """
@@ -176,7 +179,7 @@ class SoundCloud:
         link = f'/users/{user_id}/toptracks'
         return self.__get_tracks(link)
 
-    def get_user_comments(self, user_id: int):
+    def get_user_comments(self, user_id: int) -> Generator[Comment, None, None]:
         """
         Get User's Comments By User ID
         """
