@@ -59,7 +59,7 @@ class Requester(Generic[T]):
                 args[k] = kwargs.pop(k)
         return self.base + self.format_url.format(**args)
 
-    def _call_params(self, **kwargs) -> None:
+    def _call_params(self ,**kwargs) -> None:
         self.resource_url = self._format_url_and_remove_params(kwargs)
         self.headers = {
             "User-Agent": USER_AGENT
@@ -113,8 +113,10 @@ class CollectionRequester(Requester, Generic[T]):
         self._call_params(**kwargs)
         data = self._load_href(self.resource_url, self.params)
         par = {'client_id': self.client.client_id}
-        while 'next_href' in data.keys() and data['next_href'] is not None and data['collection']:
+        while 'next_href' in data.keys() and data['collection']:
             for result in data['collection']:
                 yield _convert_dict(result, self.return_type)
             if 'next_href' in data.keys() and data['next_href'] is not None:
                 data = self._load_href(data['next_href'], param=par)
+            else:
+                break
