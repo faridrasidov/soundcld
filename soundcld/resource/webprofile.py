@@ -1,5 +1,5 @@
 """
-WebProfiles Object
+WebProfile Object
 """
 from typing import Optional
 from dataclasses import dataclass

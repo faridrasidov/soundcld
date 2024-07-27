@@ -1,5 +1,5 @@
 """
-Album/Playlist Object For SoundCloud
+Album/Playlist Object
 """
 from typing import Optional, Tuple, Union
 from dataclasses import dataclass

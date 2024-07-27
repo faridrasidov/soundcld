@@ -1,5 +1,5 @@
 """
-Comments Object
+Comment Object
 """
 import datetime
 from dataclasses import dataclass
@@ -20,7 +20,7 @@ class CommentSelf(BaseData):
 @dataclass
 class BasicComment(BaseData):
     """
-    Comment without a specified track
+    Comment Without Specified Track
     """
     kind: str
     id: int
@@ -36,6 +36,6 @@ class BasicComment(BaseData):
 @dataclass
 class Comment(BasicComment):
     """
-    Comment with a specified track
+    Comment With Specified Track
     """
     track: CommentTrack
