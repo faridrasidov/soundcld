@@ -19,7 +19,7 @@
 ```python
 from soundcld import SoundCloud
 
-sc = SoundCloud()
+sc = SoundCloud(auth=False, auto_id_gen=False)
 assert sc.is_client_id_valid()
 search = sc.get_search_all("GRXGVR")
 for item in search:
@@ -30,8 +30,30 @@ for item in search:
 
 - **Last Valid Generated ID's Automatically Added To 'data.json' File To improve Api Speed.**
 ****
-**Notes about `auth_token`:**
+**Notes about `auth`:**
 
-**Some methods require authentication in the form of an OAuth2 access token. 
-You can find your token in your browser cookies for SoundCloud under the name "oauth_token". 
-A new token will be generated each time you log out and log back in.**
+**Some methods require authentication. If you want to use them, you should get the values 
+written at the bottom from your cookies and put them in a package folder ("soundcloud") 
+named cookies.json. You will also need to change your "client_id" in data.json in that folder.**
+
+**Save Them Into:**
+
+**`package_root/soundcld/`**
+
+**cookies.json:**
+```json
+{
+  "moe_uuid": "<moe_uuid>",
+  "oauth_token": "<oauth_token>",
+  "sc_anonymous_id": "<sc_anonymous_id>"
+}
+```
+
+**data.json (this file automatically generates when you get instance):**
+```json
+{
+  "user_id": "<user_id>",
+  "client_id": "<client_id>",
+  "app_version": "<app_version>"
+}
+```
