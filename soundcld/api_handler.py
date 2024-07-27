@@ -12,12 +12,19 @@ from requests import HTTPError
 
 from soundcld.resource.user import User
 from soundcld.resource.track import BasicTrack
+from soundcld.resource.message import Message
+from soundcld.resource.conversation import Conversation
 from soundcld.resource.playlist_album import BasicAlbumPlaylist
-from soundcld.resource.comments import Comment, BasicComment
-from soundcld.resource.webprofiles import WebProfile
-from soundcld.resource.aliases import SearchItem
+from soundcld.resource.comment import Comment, BasicComment
+from soundcld.resource.webprofile import WebProfile
+from soundcld.resource.alias import SearchItem
 from soundcld.request_handler import (Requester, ListRequester,
                                       CollectionRequester)
+
+scriptDirectory = os.path.dirname(os.path.abspath(__file__))
+confDirectory = scriptDirectory + '/data.json'
+cookieDirectory = scriptDirectory + '/cookies.json'
+headerDirectory = scriptDirectory + '/headers.json'
 
 
 @dataclass
@@ -25,19 +32,23 @@ class SoundCloud:
     """
     Main Soundcloud Class
     """
-    scriptDirectory = os.path.dirname(os.path.abspath(__file__))
-    confDirectory = scriptDirectory + '/data.json'
-    authorization = None
-    auth_token: str = None
+    auth: bool = False
     auto_id_gen: bool = False
+
     user_id: str = None
     client_id: str = None
-    app_version: int = 0
-    app_locale: str = 'en'
+    my_account_id: str = None
+    cookies: dict = None
+    headers: dict = None
+    app_version: int = None
 
     def __post_init__(self) -> None:
-        if os.path.exists(self.confDirectory):
-            self.__get_conf_last()
+        oauth_key = ''
+        self.__get_conf_last()
+        if self.auth:
+            self.__get_cookies()
+            oauth_key = self.cookies['oauth_token']
+        self.__get_headers(oauth_key=oauth_key)
         if not self.client_id:
             self.generate_client_id()
         while not self.is_client_id_valid() and self.auto_id_gen:
@@ -45,11 +56,12 @@ class SoundCloud:
         self.__set_conf_last()
 
     def __get_conf_last(self) -> None:
-        with open(self.confDirectory, 'r', encoding='utf-8') as file:
-            config = json.load(file)
-        self.user_id = config['user_id']
-        self.client_id = config['client_id']
-        self.app_version = config['app_version']
+        if os.path.exists(confDirectory):
+            with open(confDirectory, 'r', encoding='utf-8') as file:
+                config = json.load(file)
+            self.user_id = config['user_id']
+            self.client_id = config['client_id']
+            self.app_version = config['app_version']
 
     def __set_conf_last(self) -> None:
         config = {
@@ -57,8 +69,32 @@ class SoundCloud:
             'client_id': self.client_id,
             'app_version': self.app_version,
         }
-        with open(self.confDirectory, 'w', encoding='utf-8') as file:
+        with open(confDirectory, 'w', encoding='utf-8') as file:
             json.dump(config, file, indent=4)
+
+    def __get_cookies(self) -> None:
+        if os.path.exists(cookieDirectory):
+            with open(cookieDirectory, 'r', encoding='utf-8') as file:
+                self.cookies = json.load(file)
+            temp = self.cookies['oauth_token'].split('-')
+            self.my_account_id = temp[2]
+        else:
+            print('There Is No Cookies File')
+
+    def __get_headers(self, oauth_key: str = None) -> None:
+        if os.path.exists(headerDirectory):
+            to_add = ''
+            if self.auth:
+                elem = 'auth'
+                to_add = f'OAuth {oauth_key}'
+            else:
+                elem = 'non_auth'
+            with open(headerDirectory, 'r', encoding='utf-8') as file:
+                self.headers = json.load(file)[elem]
+            if self.auth:
+                self.headers['Authorization'] = to_add
+        else:
+            print('There Is No Headers File')
 
     def __get_users(self, req: str) -> Generator[User, None, None]:
         return CollectionRequester[User](self, req, User)()
@@ -81,6 +117,34 @@ class SoundCloud:
                  'linked_partitioning': 1,
                  }
         return CollectionRequester[SearchItem](self, req, SearchItem)(**param)
+
+    def __get_conversations(self, req, **param):
+        if self.__is_logged_in():
+            return CollectionRequester[Conversation](self, req, Conversation)(**param)
+        return ['Not Logged in']
+
+    def __get_conversation_messages(self, req, **param):
+        if self.__is_logged_in():
+            return CollectionRequester[Message](self, req, Message)(**param)
+        return ['Not Logged in']
+
+    def __is_logged_in(self):
+        if self.cookies:
+            if all(self.cookies.values()):
+                link = f'https://api-v2.soundcloud.com/users/{self.my_account_id}/conversations'
+                param = {
+                    'limit': 10,
+                    'offset': 0,
+                    'linked_partitioning': 1
+                }
+                req = requests.get(link,
+                                   params=param,
+                                   cookies=self.cookies,
+                                   headers=self.headers,
+                                   timeout=20)
+                if req.status_code == 200:
+                    return True
+        return False
 
     def generate_client_id(self) -> None:
         """
@@ -321,3 +385,51 @@ class SoundCloud:
             user_id = self.client_id
         link = f"/users/soundcloud:users:{user_id}/web-profiles"
         return ListRequester[WebProfile](self, link, WebProfile)()
+
+    def get_my_user_conversation(self,
+                                 user_id: int,
+                                 limit: int = 10,
+                                 offset: int = 0,
+                                 linked_partitioning: int = 1):
+        """
+        Get My Conversation Messages By User ID
+        """
+        link = f'/users/{self.my_account_id}/conversations/{user_id}/messages'
+        param = {
+            'limit': limit,
+            'offset': offset,
+            'linked_partitioning': linked_partitioning
+        }
+        return self.__get_conversation_messages(link, **param)
+
+    def get_my_conversations_thumb(self,
+                                   limit: int = 10,
+                                   offset: int = 0,
+                                   linked_partitioning: int = 1):
+        """
+        Get My Conversations Thumb {Last Message}
+        """
+        link = f'/users/{self.my_account_id}/conversations'
+        param = {
+            'limit': limit,
+            'offset': offset,
+            'linked_partitioning': linked_partitioning
+        }
+        return self.__get_conversations(link, **param)
+
+    def get_my_unread_conversations(self,
+                                    force: int = 1,
+                                    limit: int = 20,
+                                    offset: int = 0,
+                                    linked_partitioning: int = 1):
+        """
+        Get My Unread Conversations
+        """
+        link = f'/users/{self.my_account_id}/conversations/unread'
+        param = {
+            'force': force,
+            'limit': limit,
+            'offset': offset,
+            'linked_partitioning': linked_partitioning
+        }
+        return self.__get_conversations(link, **param)

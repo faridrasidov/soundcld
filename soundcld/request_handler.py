@@ -12,7 +12,6 @@ from soundcld.resource.user import User, BasicUser
 from soundcld.resource.track import Track, BasicTrack
 from soundcld.resource.playlist_album import AlbumPlaylist, BasicAlbumPlaylist
 
-USER_AGENT = 'Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:93.0) Gecko/20100101 Firefox/93.0'
 T = TypeVar('T')
 
 
@@ -61,20 +60,17 @@ class Requester(Generic[T]):
 
     def _call_params(self ,**kwargs) -> None:
         self.resource_url = self._format_url_and_remove_params(kwargs)
-        self.headers = {
-            "User-Agent": USER_AGENT
-        }
         self.params = kwargs
         self.params.update({
             'client_id': self.client.client_id,
             'app_version': self.client.app_version,
-            'app_locale': self.client.app_locale
+            'app_locale': 'en'
         })
-        if self.client.authorization is not None:
-            self.headers["Authorization"] = self.client.authorization
 
     def _load_href(self, url: str, param: Dict[str, Union[str, int]]) -> Dict[str, Union[str, int]]:
-        with requests.get(url, param, headers=self.headers, timeout=20) as req:
+        with requests.get(url=url, params=param, timeout=20,
+                          cookies=self.client.cookies,
+                          headers=self.client.headers) as req:
             if req.status_code not in [200, 201]:
                 return {}
             req.raise_for_status()
