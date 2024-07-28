@@ -1,6 +1,5 @@
 import pytest
 from soundcld.api_handler import SoundCloud
-from data_types import *
 
 @pytest.fixture
 def soundcloud_client():
