@@ -433,3 +433,54 @@ class SoundCloud:
             'linked_partitioning': linked_partitioning
         }
         return self.__get_conversations(link, **param)
+
+    def __get_list(self, link, **param):
+        if self.__is_logged_in():
+            return ListRequester[int](self, link, int)(**param)
+        return ['Not Logged in']
+
+    def get_my_liked_track_ids(self, limit:int = 200):
+        """
+        Get My {Logged User} Liked Tracks IDs
+        """
+        link = '/me/track_likes/ids'
+        param = {
+            'limit': limit
+        }
+        return self.__get_list(link, **param)
+
+    def get_my_reposts_ids(self, limit:int = 200):
+        """
+        Get My {Logged User} Reposts IDs
+        """
+        link = '/me/track_reposts/ids'
+        param = {
+            'limit': limit
+        }
+        return self.__get_list(link, **param)
+
+    def get_my_followers_ids(self,
+                             limit:int = 5000,
+                             linked_partitioning:int = 1):
+        """
+        Get My {Logged User} Followers IDs
+        """
+        link = '/me/followers/ids'
+        param = {
+            'limit': limit,
+            'linked_partitioning': linked_partitioning
+        }
+        return self.__get_list(link, **param)
+
+    def get_my_following_ids(self,
+                             limit:int = 5000,
+                             linked_partitioning:int = 1):
+        """
+        Get My {Logged User} Followings IDs
+        """
+        link = f'/users/{self.my_account_id}/followings/ids'
+        param = {
+            'limit': limit,
+            'linked_partitioning': linked_partitioning
+        }
+        return self.__get_list(link, **param)
