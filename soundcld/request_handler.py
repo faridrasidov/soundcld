@@ -93,8 +93,12 @@ class ListRequester(Requester, Generic[T]):
         self._call_params(**kwargs)
         resources = []
         data = self._load_href(self.resource_url, param=self.params)
-        for resource in data:
-            resources.append(_convert_dict(resource, self.return_type))
+        if 'collection'not in data.keys():
+            for resource in data:
+                resources.append(_convert_dict(resource, self.return_type))
+        else:
+            for resource in data['collection']:
+                resources.append(resource)
         return resources
 
 
