@@ -37,21 +37,19 @@ class SoundCloud:
     auth: bool = False
     auto_id_gen: bool = False
 
-    user_id: str = None
-    client_id: str = None
     my_account_id: str = None
     cookies: dict = None
     headers: dict = None
-    app_version: int = None
 
     def __post_init__(self) -> None:
+        self.data = {}
         oauth_key = ''
         self.__get_conf_last()
         if self.auth:
             self.__get_cookies()
             oauth_key = self.cookies['oauth_token']
         self.__get_headers(oauth_key=oauth_key)
-        if not self.client_id:
+        if not self.data['client_id']:
             self.generate_client_id()
         while not self.is_client_id_valid() and self.auto_id_gen:
             self.generate_client_id()
@@ -61,15 +59,24 @@ class SoundCloud:
         if os.path.exists(confDirectory):
             with open(confDirectory, 'r', encoding='utf-8') as file:
                 config = json.load(file)
-            self.user_id = config['user_id']
-            self.client_id = config['client_id']
-            self.app_version = config['app_version']
+            self.data['user_id'] = config['user_id']
+            self.data['client_id'] = config['client_id']
+            self.data['app_version'] = config['app_version']
+        else:
+            dump_json = {
+                'user_id': None,
+                'client_id': None,
+                'app_version': None
+            }
+            with open(confDirectory, 'w', encoding='utf-8') as file:
+                json.dump(dump_json, file, indent=4)
+            print('There Is No Data File')
 
     def __set_conf_last(self) -> None:
         config = {
-            'user_id': self.user_id,
-            'client_id': self.client_id,
-            'app_version': self.app_version,
+            'user_id': self.data['user_id'],
+            'client_id': self.data['client_id'],
+            'app_version': self.data['app_version'],
         }
         with open(confDirectory, 'w', encoding='utf-8') as file:
             json.dump(config, file, indent=4)
@@ -78,15 +85,23 @@ class SoundCloud:
         if os.path.exists(cookieDirectory):
             with open(cookieDirectory, 'r', encoding='utf-8') as file:
                 self.cookies = json.load(file)
-            temp = self.cookies['oauth_token'].split('-')
-            self.my_account_id = temp[2]
+            if self.cookies['oauth_token']:
+                temp = self.cookies['oauth_token'].split('-')
+                self.my_account_id = temp[2]
         else:
-            print('There Is No Cookies File')
+            dump_json = {
+                'moe_uuid': None,
+                'oauth_token': None,
+                'sc_anonymous_id': None
+            }
+            with open(cookieDirectory, 'w', encoding='utf-8') as file:
+                json.dump(dump_json, file, indent=4)
+            print('There Is No Data In Cookies File')
 
-    def __get_headers(self, oauth_key:str = None) -> None:
+    def __get_headers(self, oauth_key: str) -> None:
         if os.path.exists(headerDirectory):
             to_add = ''
-            if self.auth:
+            if self.auth and oauth_key:
                 elem = 'auth'
                 to_add = f'OAuth {oauth_key}'
             else:
@@ -98,30 +113,30 @@ class SoundCloud:
         else:
             print('There Is No Headers File')
 
-    def __get_users(self, req:str) -> Iterator[User]:
+    def __get_users(self, req: str) -> Iterator[User]:
         return CollectionRequester[User](self, req, User)()
 
-    def __get_tracks(self, req:str) -> Iterator[BasicTrack]:
+    def __get_tracks(self, req: str) -> Iterator[BasicTrack]:
         return CollectionRequester[BasicTrack](self, req, BasicTrack)()
 
-    def __get_album_playlist(self, req:str) -> Iterator[BasicAlbumPlaylist]:
+    def __get_album_playlist(self, req: str) -> Iterator[BasicAlbumPlaylist]:
         return CollectionRequester[BasicAlbumPlaylist](self, req, BasicAlbumPlaylist)()
 
-    def __get_search(self, req:str, **param) -> Iterator[SearchItem]:
-        param['user_id'] = self.user_id
+    def __get_search(self, req: str, **param) -> Iterator[SearchItem]:
+        param['user_id'] = self.data['user_id']
         return CollectionRequester[SearchItem](self, req, SearchItem)(**param)
 
-    def __get_id_list(self, req:str, **param) -> List:
+    def __get_id_list(self, req: str, **param) -> List:
         if self.is_logged_in():
             return ListRequester[int](self, req, int)(**param)
         return ['Not Logged in']
 
-    def __get_conversations(self, req:str, **param) -> Union[Iterator[Conversation], List[str]]:
+    def __get_conversations(self, req: str, **param) -> Union[Iterator[Conversation], List[str]]:
         if self.is_logged_in():
             return CollectionRequester[Conversation](self, req, Conversation)(**param)
         return ['Not Logged in']
 
-    def __get_conversation_messages(self, req:str, **param) -> Union[Iterator[Message], List[str]]:
+    def __get_conversation_messages(self, req: str, **param) -> Union[Iterator[Message], List[str]]:
         if self.is_logged_in():
             return CollectionRequester[Message](self, req, Message)(**param)
         return ['Not Logged in']
@@ -142,14 +157,14 @@ class SoundCloud:
 
         if app_version:
             app_version = app_version.group(1)
-            self.app_version = app_version
+            self.data['app_version'] = app_version
         else:
             print('app_version not found')
 
         if user_id:
             user_id = user_id.group(1)
             user_id = json.loads(user_id)
-            self.user_id = user_id[0]['data']
+            self.data['user_id'] = user_id[0]['data']
         else:
             print('user_id not found')
 
@@ -161,7 +176,7 @@ class SoundCloud:
         client_id = client_id.search(r.text)
         if not client_id:
             return
-        self.client_id = client_id.group(1)
+        self.data['client_id'] = client_id.group(1)
 
     def is_client_id_valid(self) -> bool:
         """
@@ -202,84 +217,84 @@ class SoundCloud:
                     return True
         return False
 
-    def get_user(self, user_id:int) -> User:
+    def get_user(self, user_id: int) -> User:
         """
         Get User By User ID
         """
         link = f'/users/{user_id}'
         return Requester[User](self, link, User)()
 
-    def get_user_tracks(self, user_id:int):
+    def get_user_tracks(self, user_id: int):
         """
         Get User's Tracks By User ID
         """
         link = f'/users/{user_id}/tracks'
         return self.__get_tracks(link)
 
-    def get_user_top_tracks(self, user_id:int):
+    def get_user_top_tracks(self, user_id: int):
         """
         Get User's Top Tracks By User ID
         """
         link = f'/users/{user_id}/toptracks'
         return self.__get_tracks(link)
 
-    def get_user_albums(self, user_id:int):
+    def get_user_albums(self, user_id: int):
         """
         Get User's Albums By User ID
         """
         link = f'/users/{user_id}/albums'
         return self.__get_album_playlist(link)
 
-    def get_user_playlists(self, user_id:int):
+    def get_user_playlists(self, user_id: int):
         """
         Get User's Playlists By User ID
         """
         link = f'/users/{user_id}/playlists_without_albums'
         return self.__get_album_playlist(link)
 
-    def get_user_comments(self, user_id:int) -> Iterator[Comment]:
+    def get_user_comments(self, user_id: int) -> Iterator[Comment]:
         """
         Get User's Comments By User ID
         """
         link = f'/users/{user_id}/comments'
         return CollectionRequester[Comment](self, link, Comment)()
 
-    def get_related_artists(self, user_id:int):
+    def get_related_artists(self, user_id: int):
         """
         Get User Related Artists By User ID
         """
         link = f'/users/{user_id}/relatedartists'
         return self.__get_users(link)
 
-    def get_user_followers(self, user_id:int):
+    def get_user_followers(self, user_id: int):
         """
         Get User's Follower Users By User ID
         """
         link = f'/users/{user_id}/followers'
         return self.__get_users(link)
 
-    def get_user_followings(self, user_id:int):
+    def get_user_followings(self, user_id: int):
         """
         Get User's Following Users By User ID
         """
         link = f'/users/{user_id}/followings'
         return self.__get_users(link)
 
-    def get_track(self, track_id:int) -> BasicTrack:
+    def get_track(self, track_id: int) -> BasicTrack:
         """
         Get Track By Track ID
         """
         link = f'/tracks/{track_id}'
         return Requester[BasicTrack](self, link, BasicTrack)()
 
-    def get_track_liker(self, track_id:int):
+    def get_track_liker(self, track_id: int):
         """
         Get Track's Liker Users By Track ID
         """
         link = f'/tracks/{track_id}/likers'
         return self.__get_users(link)
 
-    def get_track_reposter(self, track_id:int):
+    def get_track_reposter(self, track_id: int):
         """
         Get Track's Reposter Users By Track ID
         """
@@ -287,9 +302,9 @@ class SoundCloud:
         return self.__get_users(link)
 
     def get_track_comments(self,
-                           track_id:int,
-                           sort:str = 'newest',
-                           threaded:int = 1) -> Iterator[BasicComment]:
+                           track_id: int,
+                           sort: str = 'newest',
+                           threaded: int = 1) -> Iterator[BasicComment]:
         """
         Get Track Comments By Track ID
         """
@@ -300,49 +315,49 @@ class SoundCloud:
         link = f'/tracks/{track_id}/comments'
         return CollectionRequester[BasicComment](self, link, BasicComment)(**param)
 
-    def get_related_tracks(self, track_id:int):
+    def get_related_tracks(self, track_id: int):
         """
         Get Related Tracks By Track ID
         """
         link = f'/tracks/{track_id}/related'
         return self.__get_tracks(link)
 
-    def get_track_by_tag(self, tag:str):
+    def get_track_by_tag(self, tag: str):
         """
         Get Recent Tracks With Tag Word
         """
         link = f'/recent-tracks/{tag}'
         return self.__get_tracks(link)
 
-    def get_playlist(self, playlist_id:int) -> BasicAlbumPlaylist:
+    def get_playlist(self, playlist_id: int) -> BasicAlbumPlaylist:
         """
         Get Playlist By Playlist ID
         """
         link = f'/playlists/{playlist_id}'
         return Requester[BasicAlbumPlaylist](self, link, BasicAlbumPlaylist)()
 
-    def get_playlist_liker(self, playlist_id:int):
+    def get_playlist_liker(self, playlist_id: int):
         """
         Get Playlist's Liker Users By Playlist ID
         """
         link = f'/playlists/{playlist_id}/likers'
         return self.__get_users(link)
 
-    def get_playlist_reposter(self, playlist_id:int):
+    def get_playlist_reposter(self, playlist_id: int):
         """
         Get Playlist's Reposter Users By Playlist ID
         """
         link = f'/playlists/{playlist_id}/reposters'
         return self.__get_users(link)
 
-    def get_albums_with_track(self, track_id:int):
+    def get_albums_with_track(self, track_id: int):
         """
         Get Albums Where Track ID Have Been Added
         """
         link = f'/tracks/{track_id}/albums'
         return self.__get_album_playlist(link)
 
-    def get_playlists_with_track(self, track_id:int):
+    def get_playlists_with_track(self, track_id: int):
         """
         Get Playlists Where Track ID Have Been Added
         """
@@ -350,12 +365,12 @@ class SoundCloud:
         return self.__get_album_playlist(link)
 
     def get_search_all(self,
-                       text:str,
-                       facet:str = 'model',
-                       variant_ids:str = '',
-                       limit:int = 20,
-                       offset:int = 0,
-                       linked_partitioning:int = 1):
+                       text: str,
+                       facet: str = 'model',
+                       variant_ids: str = '',
+                       limit: int = 20,
+                       offset: int = 0,
+                       linked_partitioning: int = 1):
         """
         Get All Search Result {User, Track, Playlist}
         By Text To Search
@@ -373,7 +388,7 @@ class SoundCloud:
 
     def get_search_tracks(self,
                           text: str,
-                          facet: str = 'model',
+                          facet: str = 'genre',
                           variant_ids: str = '',
                           limit: int = 20,
                           offset: int = 0,
@@ -394,7 +409,7 @@ class SoundCloud:
 
     def get_search_users(self,
                          text: str,
-                         facet: str = 'model',
+                         facet: str = 'place',
                          variant_ids: str = '',
                          limit: int = 20,
                          offset: int = 0,
@@ -415,7 +430,7 @@ class SoundCloud:
 
     def get_search_albums(self,
                           text: str,
-                          facet: str = 'model',
+                          facet: str = 'genre',
                           variant_ids: str = '',
                           limit: int = 20,
                           offset: int = 0,
@@ -436,7 +451,7 @@ class SoundCloud:
 
     def get_search_playlists(self,
                              text: str,
-                             facet: str = 'model',
+                             facet: str = 'genre',
                              variant_ids: str = '',
                              limit: int = 20,
                              offset: int = 0,
@@ -447,7 +462,7 @@ class SoundCloud:
         link = '/search/playlists_without_albums'
         param = {
             'q': text,
-            'variant_ids':variant_ids,
+            'variant_ids': variant_ids,
             'facet': facet,
             'limit': limit,
             'offset': offset,
@@ -455,7 +470,7 @@ class SoundCloud:
         }
         return self.__get_search(link, **param)
 
-    def get_web_profiles(self, user_id:int) -> List[WebProfile]:
+    def get_web_profiles(self, user_id: int) -> List[WebProfile]:
         """
         Get User's WebProfiles Users By User ID
         """
@@ -465,10 +480,10 @@ class SoundCloud:
         return ListRequester[WebProfile](self, link, WebProfile)()
 
     def get_my_user_conversation(self,
-                                 user_id:int,
-                                 limit:int = 10,
-                                 offset:int = 0,
-                                 linked_partitioning:int = 1):
+                                 user_id: int,
+                                 limit: int = 10,
+                                 offset: int = 0,
+                                 linked_partitioning: int = 1):
         """
         Get My Conversation Messages By User ID
         """
@@ -481,9 +496,9 @@ class SoundCloud:
         return self.__get_conversation_messages(link, **param)
 
     def get_my_conversations_thumb(self,
-                                   limit:int = 10,
-                                   offset:int = 0,
-                                   linked_partitioning:int = 1):
+                                   limit: int = 10,
+                                   offset: int = 0,
+                                   linked_partitioning: int = 1):
         """
         Get My Conversations Thumb {Last Message}
         """
@@ -496,10 +511,10 @@ class SoundCloud:
         return self.__get_conversations(link, **param)
 
     def get_my_unread_conversations(self,
-                                    force:int = 1,
-                                    limit:int = 20,
-                                    offset:int = 0,
-                                    linked_partitioning:int = 1):
+                                    force: int = 1,
+                                    limit: int = 20,
+                                    offset: int = 0,
+                                    linked_partitioning: int = 1):
         """
         Get My Unread Conversations
         """
@@ -512,7 +527,7 @@ class SoundCloud:
         }
         return self.__get_conversations(link, **param)
 
-    def get_my_liked_track_ids(self, limit:int = 200):
+    def get_my_liked_track_ids(self, limit: int = 200):
         """
         Get My {Logged User} Liked Tracks IDs
         """
@@ -522,7 +537,7 @@ class SoundCloud:
         }
         return self.__get_id_list(link, **param)
 
-    def get_my_reposts_ids(self, limit:int = 200):
+    def get_my_reposts_ids(self, limit: int = 200):
         """
         Get My {Logged User} Reposts IDs
         """
@@ -533,8 +548,8 @@ class SoundCloud:
         return self.__get_id_list(link, **param)
 
     def get_my_followers_ids(self,
-                             limit:int = 5000,
-                             linked_partitioning:int = 1):
+                             limit: int = 5000,
+                             linked_partitioning: int = 1):
         """
         Get My {Logged User} Followers IDs
         """
@@ -546,8 +561,8 @@ class SoundCloud:
         return self.__get_id_list(link, **param)
 
     def get_my_following_ids(self,
-                             limit:int = 5000,
-                             linked_partitioning:int = 1):
+                             limit: int = 5000,
+                             linked_partitioning: int = 1):
         """
         Get My {Logged User} Followings IDs
         """

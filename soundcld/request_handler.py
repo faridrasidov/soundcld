@@ -2,6 +2,7 @@
 Request Handler Of SoundCld
 """
 from dataclasses import dataclass
+import urllib.parse
 from typing import Optional, Dict, Generic, TypeVar, get_origin, Union, List
 
 import string
@@ -62,16 +63,18 @@ class Requester(Generic[T]):
         self.resource_url = self._format_url_and_remove_params(kwargs)
         self.params = kwargs
         self.params.update({
-            'client_id': self.client.client_id,
-            'app_version': self.client.app_version,
+            'client_id': self.client.data['client_id'],
+            'app_version': self.client.data['app_version'],
             'app_locale': 'en'
         })
 
     def _load_href(self, url: str, param: Dict[str, Union[str, int]]) -> Dict[str, Union[str, int]]:
-        with requests.get(url=url, params=param, timeout=20,
+        params = urllib.parse.urlencode(param, quote_via=urllib.parse.quote)
+        with requests.get(url=url, params=params, timeout=20,
                           cookies=self.client.cookies,
                           headers=self.client.headers) as req:
             if req.status_code not in [200, 201]:
+                print(f'Something Went Wrong. Error {req.status_code}')
                 return {}
             req.raise_for_status()
             return req.json()
@@ -112,11 +115,10 @@ class CollectionRequester(Requester, Generic[T]):
     def __call__(self, **kwargs):
         self._call_params(**kwargs)
         data = self._load_href(self.resource_url, self.params)
-        par = {'client_id': self.client.client_id}
-        while 'next_href' in data.keys() and data['collection']:
+        while 'collection' in data.keys() and data['collection']:
             for result in data['collection']:
                 yield _convert_dict(result, self.return_type)
             if 'next_href' in data.keys() and data['next_href'] is not None:
-                data = self._load_href(data['next_href'], param=par)
+                data = self._load_href(data['next_href'], param=self.params)
             else:
                 break
