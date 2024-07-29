@@ -19,8 +19,8 @@ from soundcld.resource.playlist_album import BasicAlbumPlaylist
 from soundcld.resource.comment import Comment, BasicComment
 from soundcld.resource.webprofile import WebProfile
 from soundcld.resource.alias import SearchItem
-from soundcld.request_handler import (Requester, ListRequester,
-                                      CollectionRequester)
+from soundcld.request_handler import (GetReq, ListGetReq,
+                                      CollectionGetReq)
 
 scriptDirectory = os.path.dirname(os.path.abspath(__file__))
 confDirectory = scriptDirectory + '/data.json'
@@ -114,31 +114,31 @@ class SoundCloud:
             print('There Is No Headers File')
 
     def __get_users(self, req: str) -> Iterator[User]:
-        return CollectionRequester[User](self, req, User)()
+        return CollectionGetReq[User](self, req, User)()
 
     def __get_tracks(self, req: str) -> Iterator[BasicTrack]:
-        return CollectionRequester[BasicTrack](self, req, BasicTrack)()
+        return CollectionGetReq[BasicTrack](self, req, BasicTrack)()
 
     def __get_album_playlist(self, req: str) -> Iterator[BasicAlbumPlaylist]:
-        return CollectionRequester[BasicAlbumPlaylist](self, req, BasicAlbumPlaylist)()
+        return CollectionGetReq[BasicAlbumPlaylist](self, req, BasicAlbumPlaylist)()
 
     def __get_search(self, req: str, **param) -> Iterator[SearchItem]:
         param['user_id'] = self.data['user_id']
-        return CollectionRequester[SearchItem](self, req, SearchItem)(**param)
+        return CollectionGetReq[SearchItem](self, req, SearchItem)(**param)
 
     def __get_id_list(self, req: str, **param) -> List:
         if self.is_logged_in():
-            return ListRequester[int](self, req, int)(**param)
+            return ListGetReq[int](self, req, int)(**param)
         return ['Not Logged in']
 
     def __get_conversations(self, req: str, **param) -> Union[Iterator[Conversation], List[str]]:
         if self.is_logged_in():
-            return CollectionRequester[Conversation](self, req, Conversation)(**param)
+            return CollectionGetReq[Conversation](self, req, Conversation)(**param)
         return ['Not Logged in']
 
     def __get_conversation_messages(self, req: str, **param) -> Union[Iterator[Message], List[str]]:
         if self.is_logged_in():
-            return CollectionRequester[Message](self, req, Message)(**param)
+            return CollectionGetReq[Message](self, req, Message)(**param)
         return ['Not Logged in']
 
     def generate_client_id(self) -> None:
@@ -222,7 +222,7 @@ class SoundCloud:
         Get User By User ID
         """
         link = f'/users/{user_id}'
-        return Requester[User](self, link, User)()
+        return GetReq[User](self, link, User)()
 
     def get_user_tracks(self, user_id: int):
         """
@@ -257,7 +257,7 @@ class SoundCloud:
         Get User's Comments By User ID
         """
         link = f'/users/{user_id}/comments'
-        return CollectionRequester[Comment](self, link, Comment)()
+        return CollectionGetReq[Comment](self, link, Comment)()
 
     def get_related_artists(self, user_id: int):
         """
@@ -285,7 +285,7 @@ class SoundCloud:
         Get Track By Track ID
         """
         link = f'/tracks/{track_id}'
-        return Requester[BasicTrack](self, link, BasicTrack)()
+        return GetReq[BasicTrack](self, link, BasicTrack)()
 
     def get_track_liker(self, track_id: int):
         """
@@ -313,7 +313,7 @@ class SoundCloud:
             'threaded': threaded,
         }
         link = f'/tracks/{track_id}/comments'
-        return CollectionRequester[BasicComment](self, link, BasicComment)(**param)
+        return CollectionGetReq[BasicComment](self, link, BasicComment)(**param)
 
     def get_related_tracks(self, track_id: int):
         """
@@ -334,7 +334,7 @@ class SoundCloud:
         Get Playlist By Playlist ID
         """
         link = f'/playlists/{playlist_id}'
-        return Requester[BasicAlbumPlaylist](self, link, BasicAlbumPlaylist)()
+        return GetReq[BasicAlbumPlaylist](self, link, BasicAlbumPlaylist)()
 
     def get_playlist_liker(self, playlist_id: int):
         """
@@ -477,7 +477,7 @@ class SoundCloud:
         if not user_id and self.is_logged_in():
             user_id = self.my_account_id
         link = f'/users/soundcloud:users:{user_id}/web-profiles'
-        return ListRequester[WebProfile](self, link, WebProfile)()
+        return ListGetReq[WebProfile](self, link, WebProfile)()
 
     def get_my_user_conversation(self,
                                  user_id: int,

@@ -39,7 +39,7 @@ def _convert_dict(data, return_type: T):
 
 
 @dataclass
-class Requester(Generic[T]):
+class GetReq(Generic[T]):
     """
     Core Class To Send Request To Soundcloud
     """
@@ -86,7 +86,7 @@ class Requester(Generic[T]):
 
 
 @dataclass
-class ListRequester(Requester, Generic[T]):
+class ListGetReq(GetReq, Generic[T]):
     """
     Class To Send Requests Which
     Returns List Of Return Type Data.
@@ -106,7 +106,7 @@ class ListRequester(Requester, Generic[T]):
 
 
 @dataclass
-class CollectionRequester(Requester, Generic[T]):
+class CollectionGetReq(GetReq, Generic[T]):
     """
     Class To Send Requests Which
     Returns Collection Of Return Type Data.
