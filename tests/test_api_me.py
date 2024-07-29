@@ -11,24 +11,28 @@ def test_get_my_liked_track_ids(soundcloud_client):
     track_ids = client.get_my_liked_track_ids()
     for track in track_ids:
         assert isinstance(track, int)
+        assert track is not None
 
 def test_get_my_reposts_ids(soundcloud_client):
     client = soundcloud_client
     repost_ids = client.get_my_reposts_ids()
     for repost in repost_ids:
         assert isinstance(repost, int)
+        assert repost is not None
 
 def test_get_my_followers_ids(soundcloud_client):
     client = soundcloud_client
     followers_id = client.get_my_followers_ids()
     for follower in followers_id:
         assert isinstance(follower, int)
+        assert follower is not None
 
 def test_get_my_following_ids(soundcloud_client):
     client = soundcloud_client
     following_id = client.get_my_following_ids()
     for following in following_id:
         assert isinstance(following, int)
+        assert following is not None
 
 if __name__ == '__main__':
     pytest.main()

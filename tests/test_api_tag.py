@@ -17,6 +17,7 @@ def test_get_track_by_tag(soundcloud_client):
             break
         i += 1
         assert isinstance(track, BasicTrack)
+        assert track.kind is not None
 
 if __name__ == '__main__':
     pytest.main()

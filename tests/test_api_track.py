@@ -12,42 +12,49 @@ def test_get_track(soundcloud_client):
     client, track_id = soundcloud_client
     track = client.get_track(track_id)
     assert isinstance(track, BasicTrack)
+    assert track.kind is not None
 
 def test_get_track_liker(soundcloud_client):
     client, track_id = soundcloud_client
     track_liker = client.get_track_liker(track_id)
     for user in track_liker:
         assert isinstance(user, (User, BasicUser))
+        assert user.kind is not None
 
 def test_get_track_reposter(soundcloud_client):
     client, track_id = soundcloud_client
     track_reposter = client.get_track_reposter(track_id)
     for user in track_reposter:
         assert isinstance(user, (User, BasicUser))
+        assert user.kind is not None
 
 def test_get_albums_with_track(soundcloud_client):
     client, track_id = soundcloud_client
     track_added_albums = client.get_albums_with_track(track_id)
     for album in track_added_albums:
         assert isinstance(album, (AlbumPlaylist, BasicAlbumPlaylist))
+        assert album.kind is not None
 
 def test_get_playlist_with_track(soundcloud_client):
     client, track_id = soundcloud_client
     track_added_playlists = client.get_playlists_with_track(track_id)
     for playlist in track_added_playlists:
         assert isinstance(playlist, (AlbumPlaylist, BasicAlbumPlaylist))
+        assert playlist.kind is not None
 
 def test_get_track_comments(soundcloud_client):
     client, track_id = soundcloud_client
     comments = client.get_track_comments(track_id)
     for comment in comments:
         assert isinstance(comment, BasicComment)
+        assert comment.kind is not None
 
 def test_get_related_tracks(soundcloud_client):
     client, track_id = soundcloud_client
     related_tracks = client.get_related_tracks(track_id)
     for track in related_tracks:
         assert isinstance(track, BasicTrack)
+        assert track.kind is not None
 
 if __name__ == '__main__':
     pytest.main()

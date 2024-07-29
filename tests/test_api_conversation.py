@@ -13,19 +13,21 @@ def test_get_my_conversations_thumb(soundcloud_client):
     conversation_thumbs = client.get_my_conversations_thumb()
     for conversation in conversation_thumbs:
         assert isinstance(conversation, Conversation)
+        assert conversation.id is not None
 
 def test_get_my_unread_conversations(soundcloud_client):
     client, user_id = soundcloud_client
     conversation_unread = client.get_my_unread_conversations()
     for conversation in conversation_unread:
         assert isinstance(conversation, Conversation)
+        assert conversation.id is not None
 
 def test_get_my_user_conversation(soundcloud_client):
     client, user_id = soundcloud_client
     conversation_messages = client.get_my_user_conversation(user_id)
     for message in conversation_messages:
         assert isinstance(message, Message)
-
+        assert message.content is not None
 
 if __name__ == '__main__':
     pytest.main()
