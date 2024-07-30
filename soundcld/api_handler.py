@@ -18,7 +18,7 @@ from soundcld.resource.conversation import Conversation
 from soundcld.resource.playlist_album import BasicAlbumPlaylist
 from soundcld.resource.comment import Comment, BasicComment
 from soundcld.resource.webprofile import WebProfile
-from soundcld.resource.alias import SearchItem
+from soundcld.resource.alias import SearchItem, Like
 from soundcld.request_handler import (GetReq, ListGetReq,
                                       CollectionGetReq)
 
@@ -121,6 +121,9 @@ class SoundCloud:
 
     def __get_album_playlist(self, req: str) -> Iterator[BasicAlbumPlaylist]:
         return CollectionGetReq[BasicAlbumPlaylist](self, req, BasicAlbumPlaylist)()
+
+    def __get_likes(self, req:str, **param) -> Iterator[Like]:
+        return CollectionGetReq[Like](self, req, Like)(**param)
 
     def __get_search(self, req: str, **param) -> Iterator[SearchItem]:
         param['user_id'] = self.data['user_id']
@@ -263,6 +266,22 @@ class SoundCloud:
         link = f'/users/{user_id}/playlists_without_albums'
         return self.__get_album_playlist(link)
 
+    def get_user_likes(self,
+                       user_id: int,
+                       limit: int = 10,
+                       offset: int = 0,
+                       linked_partitioning: int = 1):
+        """
+        Get User's Likes By User ID
+        """
+        link = f'/users/{user_id}/likes'
+        param = {
+            'limit': limit,
+            'offset': offset,
+            'linked_partitioning': linked_partitioning
+        }
+        return self.__get_likes(link, **param)
+
     def get_user_comments(self,
                           user_id: int,
                           limit: int = 20,
@@ -321,6 +340,41 @@ class SoundCloud:
         """
         link = f'/users/{user_id}/followings'
         return self.__get_users(link)
+
+    def get_user_followings_not_followed_by_user(self,
+                                                 user_id: int,
+                                                 target_id: int,
+                                                 limit: int = 3,
+                                                 offset: int = 0,
+                                                 linked_partitioning: int = 1):
+        """
+        Get User's Following Users, Which Not Followed By Target User
+        """
+        link = f'/users/{user_id}/followings/not_followed_by/{target_id}'
+        param = {
+            'limit': limit,
+            'offset': offset,
+            'linked_partitioning': linked_partitioning
+        }
+        return self.__get_users(link, **param)
+
+    def get_user_followers_followed_by_user(self,
+                                            user_id: int,
+                                            target_id: int,
+                                            limit: int = 10,
+                                            offset: int = 0,
+                                            linked_partitioning: int = 1):
+
+        """
+        Get User's Follower Users, Which Followed By Target User
+        """
+        link = f'/users/{user_id}/followers/followed_by/{target_id}'
+        param = {
+            'limit': limit,
+            'offset': offset,
+            'linked_partitioning': linked_partitioning
+        }
+        return self.__get_users(link, **param)
 
     def get_track(self, track_id: int) -> BasicTrack:
         """
@@ -540,6 +594,39 @@ class SoundCloud:
 
     def get_my_tracks(self):
         return self.get_user_tracks(self.my_account_id, representation='owner')
+
+    def get_user_followings_not_followed_by_me(self,
+                                               user_id: int,
+                                               limit: int = 3,
+                                               offset: int = 0,
+                                               linked_partitioning: int = 1):
+        """
+        Get User's Following Users, Which Not Followed By Me
+        """
+        link = f'/users/{user_id}/followings/not_followed_by/{self.my_account_id}'
+        param = {
+            'limit': limit,
+            'offset': offset,
+            'linked_partitioning': linked_partitioning
+        }
+        return self.__get_users(link, **param)
+
+    def get_user_followers_followed_by_me(self,
+                                          user_id: int,
+                                          limit: int = 10,
+                                          offset: int = 0,
+                                          linked_partitioning: int = 1):
+
+        """
+        Get User's Follower Users, Which Followed By Me
+        """
+        link = f'/users/{user_id}/followers/followed_by/{self.my_account_id}'
+        param = {
+            'limit': limit,
+            'offset': offset,
+            'linked_partitioning': linked_partitioning
+        }
+        return self.__get_users(link, **param)
 
     def get_my_user_conversation(self,
                                  user_id: int,

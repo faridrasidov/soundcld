@@ -12,6 +12,7 @@ from dacite import MissingValueError
 from soundcld.resource.user import User, BasicUser
 from soundcld.resource.track import Track, BasicTrack
 from soundcld.resource.playlist_album import AlbumPlaylist, BasicAlbumPlaylist
+from soundcld.resource.like import PlaylistLike, TrackLike
 
 T = TypeVar('T')
 
@@ -21,8 +22,9 @@ def _convert_dict(data, return_type: T):
     data_type = ''
     union_types = {
         'user': [User, BasicUser],
-        'track':[Track, BasicTrack],
-        'playlist':[AlbumPlaylist, BasicAlbumPlaylist]
+        'track': [Track, BasicTrack],
+        'playlist': [AlbumPlaylist, BasicAlbumPlaylist],
+        'like': [TrackLike, PlaylistLike]
     }
     if union:
         if 'kind' in data.keys():
