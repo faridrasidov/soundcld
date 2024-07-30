@@ -37,7 +37,7 @@ class SoundCloud:
     auth: bool = False
     auto_id_gen: bool = False
 
-    my_account_id: str = None
+    my_account_id: int = None
     cookies: dict = None
     headers: dict = None
 
@@ -113,11 +113,11 @@ class SoundCloud:
         else:
             print('There Is No Headers File')
 
-    def __get_users(self, req: str) -> Iterator[User]:
-        return CollectionGetReq[User](self, req, User)()
+    def __get_users(self, req: str, **param) -> Iterator[User]:
+        return CollectionGetReq[User](self, req, User)(**param)
 
-    def __get_tracks(self, req: str) -> Iterator[BasicTrack]:
-        return CollectionGetReq[BasicTrack](self, req, BasicTrack)()
+    def __get_tracks(self, req: str, **param) -> Iterator[BasicTrack]:
+        return CollectionGetReq[BasicTrack](self, req, BasicTrack)(**param)
 
     def __get_album_playlist(self, req: str) -> Iterator[BasicAlbumPlaylist]:
         return CollectionGetReq[BasicAlbumPlaylist](self, req, BasicAlbumPlaylist)()
@@ -224,12 +224,23 @@ class SoundCloud:
         link = f'/users/{user_id}'
         return GetReq[User](self, link, User)()
 
-    def get_user_tracks(self, user_id: int):
+    def get_user_tracks(self,
+                        user_id: int,
+                        representation: str = '',
+                        limit: int = 20,
+                        offset: int = 0,
+                        linked_partitioning: int = 1):
         """
         Get User's Tracks By User ID
         """
         link = f'/users/{user_id}/tracks'
-        return self.__get_tracks(link)
+        param = {
+            'representation': representation,
+            'limit': limit,
+            'offset': offset,
+            'linked_partitioning': linked_partitioning
+        }
+        return self.__get_tracks(link, **param)
 
     def get_user_top_tracks(self, user_id: int):
         """
@@ -252,26 +263,57 @@ class SoundCloud:
         link = f'/users/{user_id}/playlists_without_albums'
         return self.__get_album_playlist(link)
 
-    def get_user_comments(self, user_id: int) -> Iterator[Comment]:
+    def get_user_comments(self,
+                          user_id: int,
+                          limit: int = 20,
+                          offset: int = 0,
+                          linked_partitioning: int = 1) -> Iterator[Comment]:
         """
         Get User's Comments By User ID
         """
         link = f'/users/{user_id}/comments'
-        return CollectionGetReq[Comment](self, link, Comment)()
+        param = {
+            'limit': limit,
+            'offset': offset,
+            'linked_partitioning': linked_partitioning
+        }
+        return CollectionGetReq[Comment](self, link, Comment)(**param)
 
-    def get_related_artists(self, user_id: int):
+    def get_related_artists(self,
+                            user_id: int,
+                            creators_only: bool = False,
+                            page_size: int = 12,
+                            limit: int = 12,
+                            offset: int = 0,
+                            linked_partitioning: int = 1):
         """
         Get User Related Artists By User ID
         """
         link = f'/users/{user_id}/relatedartists'
-        return self.__get_users(link)
+        param = {
+            'creators_only': creators_only,
+            'page_size': page_size,
+            'limit': limit,
+            'offset': offset,
+            'linked_partitioning': linked_partitioning
+        }
+        return self.__get_users(link, **param)
 
-    def get_user_followers(self, user_id: int):
+    def get_user_followers(self,
+                           user_id: int,
+                           limit: int = 10,
+                           offset: int = 0,
+                           linked_partitioning: int = 1):
         """
         Get User's Follower Users By User ID
         """
         link = f'/users/{user_id}/followers'
-        return self.__get_users(link)
+        param = {
+            'limit': limit,
+            'offset': offset,
+            'linked_partitioning': linked_partitioning
+        }
+        return self.__get_users(link, **param)
 
     def get_user_followings(self, user_id: int):
         """
@@ -286,6 +328,17 @@ class SoundCloud:
         """
         link = f'/tracks/{track_id}'
         return GetReq[BasicTrack](self, link, BasicTrack)()
+
+    def get_tracks(self, track_ids: list[int]) -> List[BasicTrack]:
+        """
+        Get Multiple Tracks By Track IDs
+        """
+        link = f'/tracks'
+        param = {
+            'ids': ','.join([str(item) for item in track_ids]),
+            '%5Bobject%20Object%5D': ''
+        }
+        return ListGetReq[BasicTrack](self, link, BasicTrack)(**param)
 
     def get_track_liker(self, track_id: int):
         """
@@ -303,14 +356,20 @@ class SoundCloud:
 
     def get_track_comments(self,
                            track_id: int,
-                           sort: str = 'newest',
-                           threaded: int = 1) -> Iterator[BasicComment]:
+                           threaded: int = 1,
+                           limit: int = 200,
+                           offset: int = 0,
+                           linked_partitioning: int = 1,
+                           sort: str = 'newest') -> Iterator[BasicComment]:
         """
         Get Track Comments By Track ID
         """
         param = {
-            'sort': sort,
             'threaded': threaded,
+            'limit': limit,
+            'offset': offset,
+            'linked_partitioning': linked_partitioning,
+            'sort': sort,
         }
         link = f'/tracks/{track_id}/comments'
         return CollectionGetReq[BasicComment](self, link, BasicComment)(**param)
@@ -479,6 +538,9 @@ class SoundCloud:
         link = f'/users/soundcloud:users:{user_id}/web-profiles'
         return ListGetReq[WebProfile](self, link, WebProfile)()
 
+    def get_my_tracks(self):
+        return self.get_user_tracks(self.my_account_id, representation='owner')
+
     def get_my_user_conversation(self,
                                  user_id: int,
                                  limit: int = 10,
@@ -527,7 +589,8 @@ class SoundCloud:
         }
         return self.__get_conversations(link, **param)
 
-    def get_my_liked_track_ids(self, limit: int = 200):
+    def get_my_liked_track_ids(self,
+                               limit: int = 200):
         """
         Get My {Logged User} Liked Tracks IDs
         """
@@ -537,11 +600,36 @@ class SoundCloud:
         }
         return self.__get_id_list(link, **param)
 
-    def get_my_reposts_ids(self, limit: int = 200):
+    def get_my_track_reposts_ids(self,
+                                 limit: int = 200):
         """
-        Get My {Logged User} Reposts IDs
+        Get My {Logged User} Track Reposts IDs
         """
         link = '/me/track_reposts/ids'
+        param = {
+            'limit': limit
+        }
+        return self.__get_id_list(link, **param)
+
+    def get_my_liked_playlist_ids(self,
+                                  limit: int = 5000,
+                                  linked_partitioning: int = 1):
+        """
+        Get My {Logged User} Liked Playlist IDs
+        """
+        link = '/me/playlist_likes/ids'
+        param = {
+            'limit': limit,
+            'linked_partitioning': linked_partitioning
+        }
+        return self.__get_id_list(link, **param)
+
+    def get_my_playlist_reposts_ids(self,
+                                    limit: int = 200):
+        """
+        Get My {Logged User} Playlist Reposts IDs
+        """
+        link = '/me/playlist_reposts/ids'
         param = {
             'limit': limit
         }
