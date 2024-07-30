@@ -96,12 +96,12 @@ class ListGetReq(GetReq, Generic[T]):
         self._call_params(**kwargs)
         resources = []
         data = self._load_href(self.resource_url, param=self.params)
-        if 'collection'not in data.keys():
+        if 'collection'not in data:
             for resource in data:
                 resources.append(_convert_dict(resource, self.return_type))
         else:
-            for resource in data['collection']:
-                resources.append(resource)
+            for ids in data['collection']:
+                resources.append(ids)
         return resources
 
 
