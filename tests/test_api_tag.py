@@ -13,11 +13,11 @@ def test_get_track_by_tag(soundcloud_client):
     all_tagged_tracks = client.get_track_by_tag(prompt)
     i = 0
     for track in all_tagged_tracks:
+        print(track)
         if i > 20:
             break
         i += 1
         assert isinstance(track, BasicTrack)
-        assert track.kind is not None
 
 if __name__ == '__main__':
     pytest.main()

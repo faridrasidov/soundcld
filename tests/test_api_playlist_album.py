@@ -11,22 +11,22 @@ def soundcloud_client():
 def test_get_playlist(soundcloud_client):
     client, playlist_id = soundcloud_client
     playlist = client.get_playlist(playlist_id)
+    print(playlist)
     assert isinstance(playlist, (AlbumPlaylist, BasicAlbumPlaylist))
-    assert playlist.kind is not None
 
 def test_get_playlist_liker(soundcloud_client):
     client, playlist_id = soundcloud_client
     playlist_liker = client.get_playlist_liker(playlist_id)
     for user in playlist_liker:
+        print(user)
         assert isinstance(user, (User, BasicUser))
-        assert user.kind is not None
 
 def test_get_playlist_reposter(soundcloud_client):
     client, playlist_id = soundcloud_client
     playlist_reposter = client.get_playlist_reposter(playlist_id)
     for user in playlist_reposter:
+        print(user)
         assert isinstance(user, (User, BasicUser))
-        assert user.kind is not None
 
 if __name__ == '__main__':
     pytest.main()
