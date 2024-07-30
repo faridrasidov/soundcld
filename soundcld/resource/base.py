@@ -35,7 +35,7 @@ class BaseItem(BaseData):
     description: Optional[str]
     display_date: datetime
     duration: int
-    embeddable_by: str
+    embeddable_by: Optional[str]
     genre: Optional[str]
     id: int
     kind: str
