@@ -63,6 +63,27 @@ def test_get_user_followings(soundcloud_client):
         print(user)
         assert isinstance(user, (User, BasicUser))
 
+def test_get_user_followers_followed_by_user(soundcloud_client):
+    client, user_id = soundcloud_client
+    followers_id = client.get_user_followers_followed_by_user(540941040, user_id)
+    for follower in followers_id:
+        print(follower)
+        assert isinstance(follower, User)
+
+def test_get_user_followings_not_followed_by_user(soundcloud_client):
+    client, user_id = soundcloud_client
+    following_id = client.get_user_followings_not_followed_by_user(540941040, user_id)
+    for following in following_id:
+        print(following)
+        assert isinstance(following, User)
+
+def test_get_user_likes(soundcloud_client):
+    client, user_id = soundcloud_client
+    likes = client.get_user_likes(540941040)
+    for like in likes:
+        print(like)
+        assert isinstance(like, Like)
+
 def test_get_user_comments(soundcloud_client):
     client, user_id = soundcloud_client
     comments = client.get_user_comments(user_id)

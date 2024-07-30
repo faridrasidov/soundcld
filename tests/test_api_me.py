@@ -56,5 +56,19 @@ def test_get_my_following_ids(soundcloud_client):
         print(following)
         assert isinstance(following, int)
 
+def test_user_followers_followed_by_me(soundcloud_client):
+    client = soundcloud_client
+    followers_id = client.get_user_followers_followed_by_me(540941040)
+    for follower in followers_id:
+        print(follower)
+        assert isinstance(follower, User)
+
+def test_get_user_followings_not_followed_by_me(soundcloud_client):
+    client = soundcloud_client
+    following_id = client.get_user_followings_not_followed_by_me(540941040)
+    for following in following_id:
+        print(following)
+        assert isinstance(following, User)
+
 if __name__ == '__main__':
     pytest.main()
