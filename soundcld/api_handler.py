@@ -18,7 +18,7 @@ from soundcld.resource.conversation import Conversation
 from soundcld.resource.playlist_album import BasicAlbumPlaylist
 from soundcld.resource.comment import Comment, BasicComment
 from soundcld.resource.webprofile import WebProfile
-from soundcld.resource.alias import SearchItem, Like
+from soundcld.resource.alias import SearchItem, Like, RepostItem, StreamItem
 from soundcld.request_handler import (GetReq, ListGetReq,
                                       CollectionGetReq)
 
@@ -122,7 +122,7 @@ class SoundCloud:
     def __get_album_playlist(self, req: str) -> Iterator[BasicAlbumPlaylist]:
         return CollectionGetReq[BasicAlbumPlaylist](self, req, BasicAlbumPlaylist)()
 
-    def __get_likes(self, req:str, **param) -> Iterator[Like]:
+    def __get_likes(self, req: str, **param) -> Iterator[Like]:
         return CollectionGetReq[Like](self, req, Like)(**param)
 
     def __get_search(self, req: str, **param) -> Iterator[SearchItem]:
@@ -282,6 +282,32 @@ class SoundCloud:
         }
         return self.__get_likes(link, **param)
 
+    def get_user_streams(self,
+                         user_id: int,
+                         limit: int = 24):
+        """
+        Get User's Streams/Reposts By User ID
+        """
+        link = f'/stream/users/{user_id}'
+        param = {
+            'offset': '',
+            'limit': limit
+        }
+        return CollectionGetReq[StreamItem](self, link, StreamItem)(**param)
+
+    def get_user_reposts(self,
+                         user_id: int,
+                         limit: int = 24):
+        """
+        Get User's Reposts By User ID
+        """
+        link = f'/stream/users/{user_id}/reposts'
+        param = {
+            'offset': '',
+            'limit': limit
+        }
+        return CollectionGetReq[RepostItem](self, link, RepostItem)(**param)
+
     def get_user_comments(self,
                           user_id: int,
                           limit: int = 20,
@@ -387,9 +413,9 @@ class SoundCloud:
         """
         Get Multiple Tracks By Track IDs
         """
-        link = f'/tracks'
+        link = '/tracks'
         param = {
-            'ids': ','.join([str(item) for item in track_ids]),
+            'ids': ','.join([str(its) for its in track_ids]),
             '%5Bobject%20Object%5D': ''
         }
         return ListGetReq[BasicTrack](self, link, BasicTrack)(**param)
@@ -593,6 +619,9 @@ class SoundCloud:
         return ListGetReq[WebProfile](self, link, WebProfile)()
 
     def get_my_tracks(self):
+        """
+        Get My Tracks
+        """
         return self.get_user_tracks(self.my_account_id, representation='owner')
 
     def get_user_followings_not_followed_by_me(self,
@@ -676,6 +705,28 @@ class SoundCloud:
         }
         return self.__get_conversations(link, **param)
 
+    def get_my_streams(self, limit: int = 24):
+        """
+        Get User's Streams/Reposts By User ID
+        """
+        link = f'/stream/users/{self.my_account_id}'
+        param = {
+            'offset': '',
+            'limit': limit
+        }
+        return CollectionGetReq[StreamItem](self, link, StreamItem)(**param)
+
+    def get_my_reposts(self, limit: int = 24):
+        """
+        Get User's Reposts By User ID
+        """
+        link = f'/stream/users/{self.my_account_id}/reposts'
+        param = {
+            'offset': '',
+            'limit': limit
+        }
+        return CollectionGetReq[RepostItem](self, link, RepostItem)(**param)
+
     def get_my_liked_track_ids(self,
                                limit: int = 200):
         """
@@ -683,6 +734,7 @@ class SoundCloud:
         """
         link = '/me/track_likes/ids'
         param = {
+            'offset': '',
             'limit': limit
         }
         return self.__get_id_list(link, **param)

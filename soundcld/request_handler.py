@@ -13,6 +13,11 @@ from soundcld.resource.user import User, BasicUser
 from soundcld.resource.track import Track, BasicTrack
 from soundcld.resource.playlist_album import AlbumPlaylist, BasicAlbumPlaylist
 from soundcld.resource.like import PlaylistLike, TrackLike
+from soundcld.resource.stream_repost import (
+    PlaylistStreamItem,
+    PlaylistStreamRepostItem,
+    TrackStreamItem,
+    TrackStreamRepostItem)
 
 T = TypeVar('T')
 
@@ -22,13 +27,17 @@ def _convert_dict(data, return_type: T):
     data_type = ''
     union_types = {
         'user': [User, BasicUser],
-        'track': [Track, BasicTrack],
-        'playlist': [AlbumPlaylist, BasicAlbumPlaylist],
-        'like': [TrackLike, PlaylistLike]
+        'track': [Track, BasicTrack, TrackStreamItem],
+        'playlist': [AlbumPlaylist, BasicAlbumPlaylist, PlaylistStreamItem],
+        'like': [TrackLike, PlaylistLike],
+        'playlist-repost': [PlaylistStreamRepostItem],
+        'track-repost': [TrackStreamRepostItem]
     }
     if union:
         if 'kind' in data.keys():
             data_type = data['kind']
+        if 'type' in data.keys():
+            data_type = data['type']
         if data_type in union_types:
             for t in union_types[data_type]:
                 try:
@@ -61,7 +70,7 @@ class GetReq(Generic[T]):
                 args[k] = kwargs.pop(k)
         return self.base + self.format_url.format(**args)
 
-    def _call_params(self ,**kwargs) -> None:
+    def _call_params(self, **kwargs) -> None:
         self.resource_url = self._format_url_and_remove_params(kwargs)
         self.params = kwargs
         self.params.update({
