@@ -70,5 +70,23 @@ def test_get_user_followings_not_followed_by_me(soundcloud_client):
         print(following)
         assert isinstance(following, User)
 
+def test_get_my_streams(soundcloud_client):
+    client = soundcloud_client
+    streams = client.get_my_streams()
+    for item in streams:
+        print(item)
+        assert isinstance(item, (PlaylistStreamItem,
+                                 PlaylistStreamRepostItem,
+                                 TrackStreamItem,
+                                 TrackStreamRepostItem))
+
+def test_get_my_reposts(soundcloud_client):
+    client = soundcloud_client
+    reposts = client.get_my_reposts()
+    for item in reposts:
+        print(item)
+        assert isinstance(item, (PlaylistStreamRepostItem,
+                                 TrackStreamRepostItem))
+
 if __name__ == '__main__':
     pytest.main()

@@ -9,3 +9,9 @@ from soundcld.resource.alias import SearchItem, Like
 from soundcld.resource.comment import BasicComment, Comment
 from soundcld.resource.message import Message
 from soundcld.resource.conversation import Conversation
+from soundcld.resource.like import TrackLike, PlaylistLike
+from soundcld.resource.stream_repost import (
+    PlaylistStreamItem,
+    PlaylistStreamRepostItem,
+    TrackStreamItem,
+    TrackStreamRepostItem)

@@ -42,6 +42,24 @@ def test_get_user_playlists(soundcloud_client):
         print(item)
         assert isinstance(item, (AlbumPlaylist, BasicAlbumPlaylist))
 
+def test_get_user_streams(soundcloud_client):
+    client, user_id = soundcloud_client
+    streams = client.get_user_streams(user_id)
+    for item in streams:
+        print(item)
+        assert isinstance(item, (PlaylistStreamItem,
+                                 PlaylistStreamRepostItem,
+                                 TrackStreamItem,
+                                 TrackStreamRepostItem))
+
+def test_get_user_reposts(soundcloud_client):
+    client, user_id = soundcloud_client
+    reposts = client.get_user_reposts(user_id)
+    for item in reposts:
+        print(item)
+        assert isinstance(item, (PlaylistStreamRepostItem,
+                                 TrackStreamRepostItem))
+
 def test_get_related_artists(soundcloud_client):
     client, user_id = soundcloud_client
     related_artists = client.get_related_artists(user_id)
@@ -82,7 +100,7 @@ def test_get_user_likes(soundcloud_client):
     likes = client.get_user_likes(540941040)
     for like in likes:
         print(like)
-        assert isinstance(like, Like)
+        assert isinstance(like, (TrackLike, PlaylistLike))
 
 def test_get_user_comments(soundcloud_client):
     client, user_id = soundcloud_client
