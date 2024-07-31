@@ -6,7 +6,12 @@ from soundcld.resource.track import Track, BasicTrack
 from soundcld.resource.user import User, BasicUser
 from soundcld.resource.playlist_album import AlbumPlaylist, BasicAlbumPlaylist
 from soundcld.resource.like import TrackLike, PlaylistLike
-
+from soundcld.resource.stream_repost import (
+    PlaylistStreamItem,
+    PlaylistStreamRepostItem,
+    TrackStreamItem,
+    TrackStreamRepostItem,
+)
 
 SearchItem = Union[
     Track, BasicTrack,
@@ -14,3 +19,9 @@ SearchItem = Union[
     AlbumPlaylist, BasicAlbumPlaylist]
 
 Like = Union[TrackLike, PlaylistLike]
+
+RepostItem = Union[TrackStreamRepostItem, PlaylistStreamRepostItem]
+
+StreamItem = Union[
+    TrackStreamItem, TrackStreamRepostItem,
+    PlaylistStreamItem, PlaylistStreamRepostItem]

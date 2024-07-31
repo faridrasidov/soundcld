@@ -25,6 +25,7 @@ class BaseData:
         """
         return from_dict(cls, d, cls.dacite_config)
 
+
 @dataclass
 class BaseItem(BaseData):
     """
