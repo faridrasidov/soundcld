@@ -29,6 +29,7 @@ for item in search:
 **Specifications:**
 
 - **Last Valid Generated ID's Automatically Added To 'data.json' File To improve Api Speed.**
+- **46 Get Api Requests Has Been Handled.(Some Of Them Require Auth)**
 ****
 **Notes about `auth`:**
 
