@@ -414,7 +414,7 @@ class SoundCloud:
         link = f'/tracks/{track_id}'
         return GetReq[BasicTrack](self, link, BasicTrack)()
 
-    def get_tracks(self, track_ids: list[int]) -> List[BasicTrack]:
+    def get_tracks(self, track_ids: List[int]) -> List[BasicTrack]:
         """
         Get Multiple Tracks By Track IDs
         """
