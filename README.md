@@ -14,7 +14,19 @@
 </div>
 
 ****
-
+**Installation:**
+```shell
+# For Global
+$ git clone https://github.com/faridrasidov/soundcld
+$ cd soundcld
+$ pip install .
+```
+```shell
+# For Venv
+$ git clone https://github.com/faridrasidov/soundcld
+$ cd soundcld
+$ path/to/your/venv/pip install .
+```
 **Example Of Usage:**
 ```python
 from soundcld import SoundCloud
