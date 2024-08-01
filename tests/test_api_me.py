@@ -1,6 +1,12 @@
 import pytest
-from soundcld.api_handler import SoundCloud
-from data_types import *
+from soundcld import SoundCloud
+from soundcld.resource import (
+    PlaylistStreamItem, TrackStreamItem,
+    PlaylistStreamRepostItem, TrackStreamRepostItem,
+    BasicTrack,
+    User
+)
+
 
 @pytest.fixture
 def soundcloud_client():
