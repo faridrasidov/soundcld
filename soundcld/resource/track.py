@@ -1,11 +1,12 @@
 """
 Track Object
 """
-from typing import Optional, Tuple
 from dataclasses import dataclass
 from datetime import datetime
-from soundcld.resource.user import BasicUser, User
+from typing import Optional, Tuple
+
 from soundcld.resource.base import BaseData, BaseItem
+from soundcld.resource.user import BasicUser, User
 from soundcld.resource.visual import Visuals
 
 

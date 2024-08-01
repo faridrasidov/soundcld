@@ -1,8 +1,9 @@
 """
 Visual Object
 """
-from typing import Tuple, Optional
 from dataclasses import dataclass
+from typing import Tuple, Optional
+
 from soundcld.resource.base import BaseData
 
 

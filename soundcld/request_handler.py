@@ -1,23 +1,23 @@
 """
 Request Handler Of SoundCld
 """
-from dataclasses import dataclass
+import string
 import urllib.parse
+from dataclasses import dataclass
 from typing import Optional, Dict, Generic, TypeVar, get_origin, Union, List
 
-import string
 import requests
 from dacite import MissingValueError
 
-from soundcld.resource.user import User, BasicUser
-from soundcld.resource.track import Track, BasicTrack
-from soundcld.resource.playlist_album import AlbumPlaylist, BasicAlbumPlaylist
 from soundcld.resource.like import PlaylistLike, TrackLike
+from soundcld.resource.playlist_album import AlbumPlaylist, BasicAlbumPlaylist
 from soundcld.resource.stream_repost import (
     PlaylistStreamItem,
     PlaylistStreamRepostItem,
     TrackStreamItem,
     TrackStreamRepostItem)
+from soundcld.resource.track import Track, BasicTrack
+from soundcld.resource.user import User, BasicUser
 
 T = TypeVar('T')
 
@@ -107,7 +107,7 @@ class ListGetReq(GetReq, Generic[T]):
         self._call_params(**kwargs)
         resources = []
         data = self._load_href(self.resource_url, param=self.params)
-        if 'collection'not in data:
+        if 'collection' not in data:
             for resource in data:
                 resources.append(_convert_dict(resource, self.return_type))
         else:

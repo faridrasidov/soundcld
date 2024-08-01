@@ -1,9 +1,10 @@
 """
 User Object
 """
-from typing import Optional, Tuple
 from dataclasses import dataclass
 from datetime import datetime
+from typing import Optional, Tuple
+
 from soundcld.resource.base import BaseData
 from soundcld.resource.visual import Visuals
 

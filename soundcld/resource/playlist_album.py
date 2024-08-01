@@ -1,12 +1,13 @@
 """
 Album/Playlist Object
 """
-from typing import Optional, Tuple, Union
 from dataclasses import dataclass
 from datetime import datetime
+from typing import Optional, Tuple, Union
+
 from soundcld.resource.base import BaseItem
-from soundcld.resource.user import BasicUser, User
 from soundcld.resource.track import BasicTrack, MiniTrack, Track
+from soundcld.resource.user import BasicUser, User
 
 
 @dataclass

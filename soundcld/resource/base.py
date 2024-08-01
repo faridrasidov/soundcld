@@ -1,11 +1,12 @@
 """
 Base Object For SoundCloud
 """
-from typing import Optional
 from dataclasses import dataclass
 from datetime import datetime
-from dacite import Config, from_dict
+from typing import Optional
+
 import dateutil.parser
+from dacite import Config, from_dict
 
 
 @dataclass

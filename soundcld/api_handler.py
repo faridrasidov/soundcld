@@ -5,22 +5,27 @@ import json
 import os
 import re
 from dataclasses import dataclass
-from typing import List, Union, Iterator
 from datetime import datetime
+from typing import List, Union, Iterator
 
 import requests
 from requests import HTTPError
 
-from soundcld.resource.user import User
-from soundcld.resource.track import BasicTrack
-from soundcld.resource.message import Message
-from soundcld.resource.conversation import Conversation
-from soundcld.resource.playlist_album import BasicAlbumPlaylist
-from soundcld.resource.comment import Comment, BasicComment
-from soundcld.resource.webprofile import WebProfile
-from soundcld.resource.alias import SearchItem, Like, RepostItem, StreamItem
-from soundcld.request_handler import (GetReq, ListGetReq,
-                                      CollectionGetReq)
+from soundcld.request_handler import (
+    GetReq,
+    ListGetReq,
+    CollectionGetReq
+)
+from soundcld.resource import (
+    SearchItem, Like, RepostItem, StreamItem,
+    Comment, BasicComment,
+    Conversation,
+    Message,
+    BasicAlbumPlaylist,
+    BasicTrack,
+    User,
+    WebProfile
+)
 
 scriptDirectory = os.path.dirname(os.path.abspath(__file__))
 confDirectory = scriptDirectory + '/data.json'

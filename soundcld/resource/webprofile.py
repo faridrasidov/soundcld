@@ -1,8 +1,9 @@
 """
 WebProfile Object
 """
-from typing import Optional
 from dataclasses import dataclass
+from typing import Optional
+
 from soundcld.resource.base import BaseData
 
 
