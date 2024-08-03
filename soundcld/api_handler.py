@@ -75,6 +75,7 @@ class SoundCloud:
             }
             with open(confDirectory, 'w', encoding='utf-8') as file:
                 json.dump(dump_json, file, indent=4)
+            self.__get_conf_last()
             print('There Is No Data File')
 
     def __set_conf_last(self) -> None:
@@ -101,6 +102,7 @@ class SoundCloud:
             }
             with open(cookieDirectory, 'w', encoding='utf-8') as file:
                 json.dump(dump_json, file, indent=4)
+            self.__get_cookies()
             print('There Is No Data In Cookies File')
 
     def __get_headers(self, oauth_key: str) -> None:
