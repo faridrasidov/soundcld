@@ -120,33 +120,33 @@ class SoundCloud:
         else:
             print('There Is No Headers File')
 
-    def __get_users(self, req: str, **param) -> Iterator[User]:
+    def _get_users(self, req: str, **param) -> Iterator[User]:
         return CollectionGetReq[User](self, req, User)(**param)
 
-    def __get_tracks(self, req: str, **param) -> Iterator[BasicTrack]:
+    def _get_tracks(self, req: str, **param) -> Iterator[BasicTrack]:
         return CollectionGetReq[BasicTrack](self, req, BasicTrack)(**param)
 
-    def __get_album_playlists(self, req: str) -> Iterator[BasicAlbumPlaylist]:
+    def _get_album_playlists(self, req: str) -> Iterator[BasicAlbumPlaylist]:
         return CollectionGetReq[BasicAlbumPlaylist](self, req, BasicAlbumPlaylist)()
 
-    def __get_likes(self, req: str, **param) -> Iterator[Like]:
+    def _get_likes(self, req: str, **param) -> Iterator[Like]:
         return CollectionGetReq[Like](self, req, Like)(**param)
 
-    def __get_searches(self, req: str, **param) -> Iterator[SearchItem]:
+    def _get_searches(self, req: str, **param) -> Iterator[SearchItem]:
         param['user_id'] = self.data['user_id']
         return CollectionGetReq[SearchItem](self, req, SearchItem)(**param)
 
-    def __get_id_list(self, req: str, **param) -> List:
+    def _get_id_list(self, req: str, **param) -> List:
         if self.is_logged_in():
             return ListGetReq[int](self, req, int)(**param)
         return ['Not Logged in']
 
-    def __get_conversations(self, req: str, **param) -> Union[Iterator[Conversation], List[str]]:
+    def _get_conversations(self, req: str, **param) -> Union[Iterator[Conversation], List[str]]:
         if self.is_logged_in():
             return CollectionGetReq[Conversation](self, req, Conversation)(**param)
         return ['Not Logged in']
 
-    def __get_conversation_messages(self, req: str, **param) -> Union[Iterator[Message], List[str]]:
+    def _get_conversation_messages(self, req: str, **param) -> Union[Iterator[Message], List[str]]:
         if self.is_logged_in():
             return CollectionGetReq[Message](self, req, Message)(**param)
         return ['Not Logged in']
@@ -250,28 +250,28 @@ class SoundCloud:
             'offset': offset,
             'linked_partitioning': linked_partitioning
         }
-        return self.__get_tracks(link, **param)
+        return self._get_tracks(link, **param)
 
     def get_user_top_tracks(self, user_id: int):
         """
         Get User's Top Tracks By User ID
         """
         link = f'/users/{user_id}/toptracks'
-        return self.__get_tracks(link)
+        return self._get_tracks(link)
 
     def get_user_albums(self, user_id: int):
         """
         Get User's Albums By User ID
         """
         link = f'/users/{user_id}/albums'
-        return self.__get_album_playlists(link)
+        return self._get_album_playlists(link)
 
     def get_user_playlists(self, user_id: int):
         """
         Get User's Playlists By User ID
         """
         link = f'/users/{user_id}/playlists_without_albums'
-        return self.__get_album_playlists(link)
+        return self._get_album_playlists(link)
 
     def get_user_likes(self,
                        user_id: int,
@@ -287,7 +287,7 @@ class SoundCloud:
             'offset': offset,
             'linked_partitioning': linked_partitioning
         }
-        return self.__get_likes(link, **param)
+        return self._get_likes(link, **param)
 
     def get_user_streams(self,
                          user_id: int,
@@ -349,7 +349,7 @@ class SoundCloud:
             'offset': offset,
             'linked_partitioning': linked_partitioning
         }
-        return self.__get_users(link, **param)
+        return self._get_users(link, **param)
 
     def get_user_followers(self,
                            user_id: int,
@@ -365,14 +365,14 @@ class SoundCloud:
             'offset': offset,
             'linked_partitioning': linked_partitioning
         }
-        return self.__get_users(link, **param)
+        return self._get_users(link, **param)
 
     def get_user_followings(self, user_id: int):
         """
         Get User's Following Users By User ID
         """
         link = f'/users/{user_id}/followings'
-        return self.__get_users(link)
+        return self._get_users(link)
 
     def get_user_followings_not_followed_by_user(self,
                                                  user_id: int,
@@ -389,7 +389,7 @@ class SoundCloud:
             'offset': offset,
             'linked_partitioning': linked_partitioning
         }
-        return self.__get_users(link, **param)
+        return self._get_users(link, **param)
 
     def get_user_followers_followed_by_user(self,
                                             user_id: int,
@@ -407,7 +407,7 @@ class SoundCloud:
             'offset': offset,
             'linked_partitioning': linked_partitioning
         }
-        return self.__get_users(link, **param)
+        return self._get_users(link, **param)
 
     def get_track(self, track_id: int) -> BasicTrack:
         """
@@ -432,14 +432,14 @@ class SoundCloud:
         Get Track's Liker Users By Track ID
         """
         link = f'/tracks/{track_id}/likers'
-        return self.__get_users(link)
+        return self._get_users(link)
 
     def get_track_reposter(self, track_id: int):
         """
         Get Track's Reposter Users By Track ID
         """
         link = f'/tracks/{track_id}/reposters'
-        return self.__get_users(link)
+        return self._get_users(link)
 
     def get_track_comments(self,
                            track_id: int,
@@ -466,14 +466,14 @@ class SoundCloud:
         Get Related Tracks By Track ID
         """
         link = f'/tracks/{track_id}/related'
-        return self.__get_tracks(link)
+        return self._get_tracks(link)
 
     def get_track_by_tag(self, tag: str):
         """
         Get Recent Tracks With Tag Word
         """
         link = f'/recent-tracks/{tag}'
-        return self.__get_tracks(link)
+        return self._get_tracks(link)
 
     def get_playlist(self, playlist_id: int) -> BasicAlbumPlaylist:
         """
@@ -487,28 +487,28 @@ class SoundCloud:
         Get Playlist's Liker Users By Playlist ID
         """
         link = f'/playlists/{playlist_id}/likers'
-        return self.__get_users(link)
+        return self._get_users(link)
 
     def get_playlist_reposter(self, playlist_id: int):
         """
         Get Playlist's Reposter Users By Playlist ID
         """
         link = f'/playlists/{playlist_id}/reposters'
-        return self.__get_users(link)
+        return self._get_users(link)
 
     def get_albums_with_track(self, track_id: int):
         """
         Get Albums Where Track ID Have Been Added
         """
         link = f'/tracks/{track_id}/albums'
-        return self.__get_album_playlists(link)
+        return self._get_album_playlists(link)
 
     def get_playlists_with_track(self, track_id: int):
         """
         Get Playlists Where Track ID Have Been Added
         """
         link = f'/tracks/{track_id}/playlists_without_albums'
-        return self.__get_album_playlists(link)
+        return self._get_album_playlists(link)
 
     def get_search_all(self,
                        text: str,
@@ -530,7 +530,7 @@ class SoundCloud:
             'offset': offset,
             'linked_partitioning': linked_partitioning
         }
-        return self.__get_searches(link, **param)
+        return self._get_searches(link, **param)
 
     def get_search_tracks(self,
                           text: str,
@@ -551,7 +551,7 @@ class SoundCloud:
             'offset': offset,
             'linked_partitioning': linked_partitioning
         }
-        return self.__get_searches(link, **param)
+        return self._get_searches(link, **param)
 
     def get_search_users(self,
                          text: str,
@@ -572,7 +572,7 @@ class SoundCloud:
             'offset': offset,
             'linked_partitioning': linked_partitioning
         }
-        return self.__get_searches(link, **param)
+        return self._get_searches(link, **param)
 
     def get_search_albums(self,
                           text: str,
@@ -593,7 +593,7 @@ class SoundCloud:
             'offset': offset,
             'linked_partitioning': linked_partitioning
         }
-        return self.__get_searches(link, **param)
+        return self._get_searches(link, **param)
 
     def get_search_playlists(self,
                              text: str,
@@ -614,7 +614,7 @@ class SoundCloud:
             'offset': offset,
             'linked_partitioning': linked_partitioning
         }
-        return self.__get_searches(link, **param)
+        return self._get_searches(link, **param)
 
     def get_web_profiles(self, user_id: int) -> List[WebProfile]:
         """
@@ -645,7 +645,7 @@ class SoundCloud:
             'offset': offset,
             'linked_partitioning': linked_partitioning
         }
-        return self.__get_users(link, **param)
+        return self._get_users(link, **param)
 
     def get_user_followers_followed_by_me(self,
                                           user_id: int,
@@ -662,7 +662,7 @@ class SoundCloud:
             'offset': offset,
             'linked_partitioning': linked_partitioning
         }
-        return self.__get_users(link, **param)
+        return self._get_users(link, **param)
 
     def get_my_user_conversation(self,
                                  user_id: int,
@@ -678,7 +678,7 @@ class SoundCloud:
             'offset': offset,
             'linked_partitioning': linked_partitioning
         }
-        return self.__get_conversation_messages(link, **param)
+        return self._get_conversation_messages(link, **param)
 
     def get_my_conversations_thumb(self,
                                    limit: int = 10,
@@ -693,7 +693,7 @@ class SoundCloud:
             'offset': offset,
             'linked_partitioning': linked_partitioning
         }
-        return self.__get_conversations(link, **param)
+        return self._get_conversations(link, **param)
 
     def get_my_unread_conversations(self,
                                     force: int = 1,
@@ -710,7 +710,7 @@ class SoundCloud:
             'offset': offset,
             'linked_partitioning': linked_partitioning
         }
-        return self.__get_conversations(link, **param)
+        return self._get_conversations(link, **param)
 
     def get_my_streams(self, limit: int = 24):
         """
@@ -744,7 +744,7 @@ class SoundCloud:
             'offset': '',
             'limit': limit
         }
-        return self.__get_id_list(link, **param)
+        return self._get_id_list(link, **param)
 
     def get_my_track_reposts_ids(self,
                                  limit: int = 200):
@@ -755,7 +755,7 @@ class SoundCloud:
         param = {
             'limit': limit
         }
-        return self.__get_id_list(link, **param)
+        return self._get_id_list(link, **param)
 
     def get_my_liked_playlist_ids(self,
                                   limit: int = 5000,
@@ -768,7 +768,7 @@ class SoundCloud:
             'limit': limit,
             'linked_partitioning': linked_partitioning
         }
-        return self.__get_id_list(link, **param)
+        return self._get_id_list(link, **param)
 
     def get_my_playlist_reposts_ids(self,
                                     limit: int = 200):
@@ -779,7 +779,7 @@ class SoundCloud:
         param = {
             'limit': limit
         }
-        return self.__get_id_list(link, **param)
+        return self._get_id_list(link, **param)
 
     def get_my_followers_ids(self,
                              limit: int = 5000,
@@ -792,7 +792,7 @@ class SoundCloud:
             'limit': limit,
             'linked_partitioning': linked_partitioning
         }
-        return self.__get_id_list(link, **param)
+        return self._get_id_list(link, **param)
 
     def get_my_following_ids(self,
                              limit: int = 5000,
@@ -805,7 +805,7 @@ class SoundCloud:
             'limit': limit,
             'linked_partitioning': linked_partitioning
         }
-        return self.__get_id_list(link, **param)
+        return self._get_id_list(link, **param)
 
     @staticmethod
     def __save_validate_time():
