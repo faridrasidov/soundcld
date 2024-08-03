@@ -126,13 +126,13 @@ class SoundCloud:
     def __get_tracks(self, req: str, **param) -> Iterator[BasicTrack]:
         return CollectionGetReq[BasicTrack](self, req, BasicTrack)(**param)
 
-    def __get_album_playlist(self, req: str) -> Iterator[BasicAlbumPlaylist]:
+    def __get_album_playlists(self, req: str) -> Iterator[BasicAlbumPlaylist]:
         return CollectionGetReq[BasicAlbumPlaylist](self, req, BasicAlbumPlaylist)()
 
     def __get_likes(self, req: str, **param) -> Iterator[Like]:
         return CollectionGetReq[Like](self, req, Like)(**param)
 
-    def __get_search(self, req: str, **param) -> Iterator[SearchItem]:
+    def __get_searches(self, req: str, **param) -> Iterator[SearchItem]:
         param['user_id'] = self.data['user_id']
         return CollectionGetReq[SearchItem](self, req, SearchItem)(**param)
 
@@ -264,14 +264,14 @@ class SoundCloud:
         Get User's Albums By User ID
         """
         link = f'/users/{user_id}/albums'
-        return self.__get_album_playlist(link)
+        return self.__get_album_playlists(link)
 
     def get_user_playlists(self, user_id: int):
         """
         Get User's Playlists By User ID
         """
         link = f'/users/{user_id}/playlists_without_albums'
-        return self.__get_album_playlist(link)
+        return self.__get_album_playlists(link)
 
     def get_user_likes(self,
                        user_id: int,
@@ -501,14 +501,14 @@ class SoundCloud:
         Get Albums Where Track ID Have Been Added
         """
         link = f'/tracks/{track_id}/albums'
-        return self.__get_album_playlist(link)
+        return self.__get_album_playlists(link)
 
     def get_playlists_with_track(self, track_id: int):
         """
         Get Playlists Where Track ID Have Been Added
         """
         link = f'/tracks/{track_id}/playlists_without_albums'
-        return self.__get_album_playlist(link)
+        return self.__get_album_playlists(link)
 
     def get_search_all(self,
                        text: str,
@@ -530,7 +530,7 @@ class SoundCloud:
             'offset': offset,
             'linked_partitioning': linked_partitioning
         }
-        return self.__get_search(link, **param)
+        return self.__get_searches(link, **param)
 
     def get_search_tracks(self,
                           text: str,
@@ -551,7 +551,7 @@ class SoundCloud:
             'offset': offset,
             'linked_partitioning': linked_partitioning
         }
-        return self.__get_search(link, **param)
+        return self.__get_searches(link, **param)
 
     def get_search_users(self,
                          text: str,
@@ -572,7 +572,7 @@ class SoundCloud:
             'offset': offset,
             'linked_partitioning': linked_partitioning
         }
-        return self.__get_search(link, **param)
+        return self.__get_searches(link, **param)
 
     def get_search_albums(self,
                           text: str,
@@ -593,7 +593,7 @@ class SoundCloud:
             'offset': offset,
             'linked_partitioning': linked_partitioning
         }
-        return self.__get_search(link, **param)
+        return self.__get_searches(link, **param)
 
     def get_search_playlists(self,
                              text: str,
@@ -614,7 +614,7 @@ class SoundCloud:
             'offset': offset,
             'linked_partitioning': linked_partitioning
         }
-        return self.__get_search(link, **param)
+        return self.__get_searches(link, **param)
 
     def get_web_profiles(self, user_id: int) -> List[WebProfile]:
         """
