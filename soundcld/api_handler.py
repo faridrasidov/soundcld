@@ -136,6 +136,18 @@ class SoundCloud:
         param['user_id'] = self.data['user_id']
         return CollectionGetReq[SearchItem](self, req, SearchItem)(**param)
 
+    def _get_reposts(self, req: str, **param) -> Iterator[StreamItem]:
+        return CollectionGetReq[StreamItem](self, req, StreamItem)(**param)
+
+    def _get_streams(self, req: str, **param) -> Iterator[RepostItem]:
+        return CollectionGetReq[RepostItem](self, req, RepostItem)(**param)
+
+    def _get_comments(self, req: str, **param) -> Iterator[Comment]:
+        return CollectionGetReq[Comment](self, req, Comment)(**param)
+
+    def _get_basic_comments(self, req: str, **param) -> Iterator[BasicComment]:
+        return CollectionGetReq[BasicComment](self, req, BasicComment)(**param)
+
     def _get_id_list(self, req: str, **param) -> List:
         if self.is_logged_in():
             return ListGetReq[int](self, req, int)(**param)
@@ -300,7 +312,7 @@ class SoundCloud:
             'offset': '',
             'limit': limit
         }
-        return CollectionGetReq[StreamItem](self, link, StreamItem)(**param)
+        return self._get_streams(link, **param)
 
     def get_user_reposts(self,
                          user_id: int,
@@ -313,13 +325,13 @@ class SoundCloud:
             'offset': '',
             'limit': limit
         }
-        return CollectionGetReq[RepostItem](self, link, RepostItem)(**param)
+        return self._get_reposts(link, **param)
 
     def get_user_comments(self,
                           user_id: int,
                           limit: int = 20,
                           offset: int = 0,
-                          linked_partitioning: int = 1) -> Iterator[Comment]:
+                          linked_partitioning: int = 1):
         """
         Get User's Comments By User ID
         """
@@ -329,7 +341,7 @@ class SoundCloud:
             'offset': offset,
             'linked_partitioning': linked_partitioning
         }
-        return CollectionGetReq[Comment](self, link, Comment)(**param)
+        return self._get_comments(link, **param)
 
     def get_related_artists(self,
                             user_id: int,
@@ -447,7 +459,7 @@ class SoundCloud:
                            limit: int = 200,
                            offset: int = 0,
                            linked_partitioning: int = 1,
-                           sort: str = 'newest') -> Iterator[BasicComment]:
+                           sort: str = 'newest'):
         """
         Get Track Comments By Track ID
         """
@@ -459,7 +471,7 @@ class SoundCloud:
             'sort': sort,
         }
         link = f'/tracks/{track_id}/comments'
-        return CollectionGetReq[BasicComment](self, link, BasicComment)(**param)
+        return self._get_basic_comments(link, **param)
 
     def get_related_tracks(self, track_id: int):
         """
@@ -721,7 +733,7 @@ class SoundCloud:
             'offset': '',
             'limit': limit
         }
-        return CollectionGetReq[StreamItem](self, link, StreamItem)(**param)
+        return self._get_streams(link, **param)
 
     def get_my_reposts(self, limit: int = 24):
         """
@@ -732,7 +744,7 @@ class SoundCloud:
             'offset': '',
             'limit': limit
         }
-        return CollectionGetReq[RepostItem](self, link, RepostItem)(**param)
+        return self._get_reposts(link, **param)
 
     def get_my_liked_track_ids(self,
                                limit: int = 200):

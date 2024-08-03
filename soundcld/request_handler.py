@@ -42,8 +42,8 @@ def _convert_dict(data, return_type: T):
             for t in union_types[data_type]:
                 try:
                     return t.from_dict(data)
-                except MissingValueError as err:
-                    print(err)
+                except MissingValueError:
+                    pass
     else:
         return return_type.from_dict(data)
     raise ValueError(f"Could not convert {data} to type {return_type}")
