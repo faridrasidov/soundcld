@@ -50,7 +50,7 @@ def _convert_dict(data, return_type: T):
 
 
 @dataclass
-class GetReq(Generic[T]):
+class BaseReq(Generic[T]):
     """
     Core Class To Send Request To Soundcloud
     """
@@ -58,7 +58,6 @@ class GetReq(Generic[T]):
     resource_url = params = headers = ''
     client: T
     format_url: str
-    return_type: T
 
     def _format_url_and_remove_params(self, kwargs: dict) -> str:
         format_args = {tup[1]
@@ -78,6 +77,14 @@ class GetReq(Generic[T]):
             'app_version': self.client.data['app_version'],
             'app_locale': 'en'
         })
+
+
+@dataclass
+class GetReq(BaseReq, Generic[T]):
+    """
+    Core Class To Send GET Request To Soundcloud
+    """
+    return_type: T
 
     def _load_href(self, url: str, param: Dict[str, Union[str, int]]) -> Dict[str, Union[str, int]]:
         params = urllib.parse.urlencode(param, quote_via=urllib.parse.quote)
@@ -99,7 +106,7 @@ class GetReq(Generic[T]):
 @dataclass
 class ListGetReq(GetReq, Generic[T]):
     """
-    Class To Send Requests Which
+    Class To Send GET Requests Which
     Returns List Of Return Type Data.
     """
 
@@ -119,7 +126,7 @@ class ListGetReq(GetReq, Generic[T]):
 @dataclass
 class CollectionGetReq(GetReq, Generic[T]):
     """
-    Class To Send Requests Which
+    Class To Send GET Requests Which
     Returns Collection Of Return Type Data.
     """
 
