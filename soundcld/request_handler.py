@@ -1,7 +1,6 @@
 """
 Request Handler Of SoundCld
 """
-import string
 import urllib.parse
 from dataclasses import dataclass
 from typing import Optional, Dict, Generic, TypeVar, get_origin, Union, List
@@ -9,15 +8,14 @@ from typing import Optional, Dict, Generic, TypeVar, get_origin, Union, List
 import requests
 from dacite import MissingValueError
 
-from soundcld.resource.like import PlaylistLike, TrackLike
-from soundcld.resource.playlist_album import AlbumPlaylist, BasicAlbumPlaylist
-from soundcld.resource.stream_repost import (
-    PlaylistStreamItem,
-    PlaylistStreamRepostItem,
-    TrackStreamItem,
-    TrackStreamRepostItem)
-from soundcld.resource.track import Track, BasicTrack
-from soundcld.resource.user import User, BasicUser
+from soundcld.resource import (
+    PlaylistLike, TrackLike,
+    AlbumPlaylist, BasicAlbumPlaylist,
+    PlaylistStreamItem, PlaylistStreamRepostItem,
+    TrackStreamItem, TrackStreamRepostItem,
+    Track, BasicTrack,
+    User, BasicUser
+)
 
 T = TypeVar('T')
 
@@ -59,18 +57,8 @@ class BaseReq(Generic[T]):
     client: T
     format_url: str
 
-    def _format_url_and_remove_params(self, kwargs: dict) -> str:
-        format_args = {tup[1]
-                       for tup in string.Formatter().parse(self.format_url)
-                       if tup[1] is not None}
-        args = {}
-        for k in list(kwargs.keys()):
-            if k in format_args:
-                args[k] = kwargs.pop(k)
-        return self.base + self.format_url.format(**args)
-
     def _call_params(self, **kwargs) -> None:
-        self.resource_url = self._format_url_and_remove_params(kwargs)
+        self.resource_url = self.base + self.format_url
         self.params = kwargs
         self.params.update({
             'client_id': self.client.data['client_id'],
@@ -171,6 +159,6 @@ class PutReq(BaseReq):
     def __call__(self, payload, **kwargs):
         self._call_params(**kwargs)
         data = self._load_href(self.resource_url, self.params, payload)
-        print('User Information Updated.') if data else (
+        print('User Information Updated.') if data is not None else (
             print('User Information Not Updated.'))
-        return True if data else False
+        return bool(data)
