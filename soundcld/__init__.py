@@ -589,3 +589,28 @@ class SoundCloud(BaseSound):
             'linked_partitioning': linked_partitioning
         }
         return self._get_id_list(link, **param)
+
+    def put_me_info(
+            self,
+            permalink: str,
+            username: str,
+            city: str = '',
+            country_code: str = 'EN',
+            description: str = '',
+            first_name: str = '',
+            last_name: str = ''
+    ):
+        """
+        Change My User Information.
+        """
+        link = '/me'
+        payload = {
+            'city': city,
+            'country_code': country_code,
+            'description': description,
+            'first_name': first_name,
+            'last_name': last_name,
+            'permalink': permalink,
+            'username': username
+        }
+        return self._put_payload(link, payload)
