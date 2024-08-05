@@ -140,3 +140,37 @@ class CollectionGetReq(GetReq, Generic[T]):
                 data = self._load_href(data['next_href'], param=self.params)
             else:
                 break
+
+
+@dataclass
+class PutReq(BaseReq):
+    def _load_href(
+            self,
+            url: str,
+            param: dict,
+            payload: dict
+    ) -> Dict:
+        params = urllib.parse.urlencode(
+            param,
+            quote_via=urllib.parse.quote
+        )
+        with requests.put(
+                url=url,
+                params=params,
+                json=payload,
+                timeout=20,
+                cookies=self.client.cookies,
+                headers=self.client.headers
+        ) as req:
+            if req.status_code not in [200, 201]:
+                print(f'Something Went Wrong. Error {req.status_code}')
+                return {}
+            req.raise_for_status()
+            return {'status': 'ok'}
+
+    def __call__(self, payload, **kwargs):
+        self._call_params(**kwargs)
+        data = self._load_href(self.resource_url, self.params, payload)
+        print('User Information Updated.') if data else (
+            print('User Information Not Updated.'))
+        return True if data else False
