@@ -6,7 +6,7 @@
 
 <!-- Badges -->
 
-<a href="https://github.com/faridrasidov/soundcld" title="Go to GitHub repo"><img src="https://img.shields.io/static/v1?label=faridrasidov&message=soundcld&color=purple&logo=github" alt="faridrasidov - soundcld"></a>
+<a href="https://github.com/faridrasidov/soundcld" title="Go to GitHub repo"><img src="https://img.shields.io/static/v1?label=faridrasidov&message=soundcld&color=white&logo=github" alt="faridrasidov - soundcld"></a>
 <a href="https://github.com/faridrasidov/soundcld/actions/workflows/ci.yml"><img src="https://github.com/faridrasidov/soundcld/actions/workflows/ci.yml/badge.svg" alt="soundcld - CI Tests"></a>
 
 <a href="https://github.com/faridrasidov/soundcld"><img src="https://img.shields.io/github/stars/faridrasidov/soundcld?style=social" alt="stars - soundcld"></a>
@@ -42,6 +42,7 @@ for item in search:
 
 - **Last Valid Generated ID's Automatically Added To 'data.json' File To improve Api Speed.**
 - **46 Get Api Requests Has Been Handled.(Some Of Them Require Auth)**
+- **You Can Change Your Profile Info Too**
 ****
 **Notes about `auth`:**
 
