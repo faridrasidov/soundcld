@@ -19,12 +19,14 @@ class SoundCloud(BaseSound):
         link = f'/users/{user_id}'
         return self._get_user(link)
 
-    def get_user_tracks(self,
-                        user_id: int,
-                        representation: str = '',
-                        limit: int = 20,
-                        offset: int = 0,
-                        linked_partitioning: int = 1):
+    def get_user_tracks(
+            self,
+            user_id: int,
+            representation: str = '',
+            limit: int = 20,
+            offset: int = 0,
+            linked_partitioning: int = 1
+    ):
         """
         Get User's Tracks By User ID
         """
@@ -58,11 +60,13 @@ class SoundCloud(BaseSound):
         link = f'/users/{user_id}/playlists_without_albums'
         return self._get_album_playlists(link)
 
-    def get_user_likes(self,
-                       user_id: int,
-                       limit: int = 10,
-                       offset: int = 0,
-                       linked_partitioning: int = 1):
+    def get_user_likes(
+            self,
+            user_id: int,
+            limit: int = 10,
+            offset: int = 0,
+            linked_partitioning: int = 1
+    ):
         """
         Get User's Likes By User ID
         """
@@ -74,9 +78,11 @@ class SoundCloud(BaseSound):
         }
         return self._get_likes(link, **param)
 
-    def get_user_streams(self,
-                         user_id: int,
-                         limit: int = 24):
+    def get_user_streams(
+            self,
+            user_id: int,
+            limit: int = 24
+    ):
         """
         Get User's Streams/Reposts By User ID
         """
@@ -87,9 +93,11 @@ class SoundCloud(BaseSound):
         }
         return self._get_streams(link, **param)
 
-    def get_user_reposts(self,
-                         user_id: int,
-                         limit: int = 24):
+    def get_user_reposts(
+            self,
+            user_id: int,
+            limit: int = 24
+    ):
         """
         Get User's Reposts By User ID
         """
@@ -100,11 +108,13 @@ class SoundCloud(BaseSound):
         }
         return self._get_reposts(link, **param)
 
-    def get_user_comments(self,
-                          user_id: int,
-                          limit: int = 20,
-                          offset: int = 0,
-                          linked_partitioning: int = 1):
+    def get_user_comments(
+            self,
+            user_id: int,
+            limit: int = 20,
+            offset: int = 0,
+            linked_partitioning: int = 1
+    ):
         """
         Get User's Comments By User ID
         """
@@ -116,13 +126,15 @@ class SoundCloud(BaseSound):
         }
         return self._get_comments(link, **param)
 
-    def get_related_artists(self,
-                            user_id: int,
-                            creators_only: bool = False,
-                            page_size: int = 12,
-                            limit: int = 12,
-                            offset: int = 0,
-                            linked_partitioning: int = 1):
+    def get_related_artists(
+            self,
+            user_id: int,
+            creators_only: bool = False,
+            page_size: int = 12,
+            limit: int = 12,
+            offset: int = 0,
+            linked_partitioning: int = 1
+    ):
         """
         Get User Related Artists By User ID
         """
@@ -136,11 +148,13 @@ class SoundCloud(BaseSound):
         }
         return self._get_users(link, **param)
 
-    def get_user_followers(self,
-                           user_id: int,
-                           limit: int = 10,
-                           offset: int = 0,
-                           linked_partitioning: int = 1):
+    def get_user_followers(
+            self,
+            user_id: int,
+            limit: int = 10,
+            offset: int = 0,
+            linked_partitioning: int = 1
+    ):
         """
         Get User's Follower Users By User ID
         """
@@ -159,12 +173,14 @@ class SoundCloud(BaseSound):
         link = f'/users/{user_id}/followings'
         return self._get_users(link)
 
-    def get_user_followings_not_followed_by_user(self,
-                                                 user_id: int,
-                                                 target_id: int,
-                                                 limit: int = 3,
-                                                 offset: int = 0,
-                                                 linked_partitioning: int = 1):
+    def get_user_followings_not_followed_by_user(
+            self,
+            user_id: int,
+            target_id: int,
+            limit: int = 3,
+            offset: int = 0,
+            linked_partitioning: int = 1
+    ):
         """
         Get User's Following Users, Which Not Followed By Target User
         """
@@ -176,12 +192,14 @@ class SoundCloud(BaseSound):
         }
         return self._get_users(link, **param)
 
-    def get_user_followers_followed_by_user(self,
-                                            user_id: int,
-                                            target_id: int,
-                                            limit: int = 10,
-                                            offset: int = 0,
-                                            linked_partitioning: int = 1):
+    def get_user_followers_followed_by_user(
+            self,
+            user_id: int,
+            target_id: int,
+            limit: int = 10,
+            offset: int = 0,
+            linked_partitioning: int = 1
+    ):
         """
         Get User's Follower Users, Which Followed By Target User
         """
@@ -225,13 +243,15 @@ class SoundCloud(BaseSound):
         link = f'/tracks/{track_id}/reposters'
         return self._get_users(link)
 
-    def get_track_comments(self,
-                           track_id: int,
-                           threaded: int = 1,
-                           limit: int = 200,
-                           offset: int = 0,
-                           linked_partitioning: int = 1,
-                           sort: str = 'newest'):
+    def get_track_comments(
+            self,
+            track_id: int,
+            threaded: int = 1,
+            limit: int = 200,
+            offset: int = 0,
+            linked_partitioning: int = 1,
+            sort: str = 'newest'
+    ):
         """
         Get Track Comments By Track ID
         """
@@ -294,13 +314,15 @@ class SoundCloud(BaseSound):
         link = f'/tracks/{track_id}/playlists_without_albums'
         return self._get_album_playlists(link)
 
-    def get_search_all(self,
-                       text: str,
-                       facet: str = 'model',
-                       variant_ids: str = '',
-                       limit: int = 20,
-                       offset: int = 0,
-                       linked_partitioning: int = 1):
+    def get_search_all(
+            self,
+            text: str,
+            facet: str = 'model',
+            variant_ids: str = '',
+            limit: int = 20,
+            offset: int = 0,
+            linked_partitioning: int = 1
+    ):
         """
         Get All Search Result {User, Track, Playlist}
         By Text To Search
@@ -316,13 +338,15 @@ class SoundCloud(BaseSound):
         }
         return self._get_searches(link, **param)
 
-    def get_search_tracks(self,
-                          text: str,
-                          facet: str = 'genre',
-                          variant_ids: str = '',
-                          limit: int = 20,
-                          offset: int = 0,
-                          linked_partitioning: int = 1):
+    def get_search_tracks(
+            self,
+            text: str,
+            facet: str = 'genre',
+            variant_ids: str = '',
+            limit: int = 20,
+            offset: int = 0,
+            linked_partitioning: int = 1
+    ):
         """
         Get All Search Tracks By Text To Search
         """
@@ -337,13 +361,15 @@ class SoundCloud(BaseSound):
         }
         return self._get_searches(link, **param)
 
-    def get_search_users(self,
-                         text: str,
-                         facet: str = 'place',
-                         variant_ids: str = '',
-                         limit: int = 20,
-                         offset: int = 0,
-                         linked_partitioning: int = 1):
+    def get_search_users(
+            self,
+            text: str,
+            facet: str = 'place',
+            variant_ids: str = '',
+            limit: int = 20,
+            offset: int = 0,
+            linked_partitioning: int = 1
+    ):
         """
         Get All Search Users By Text To Search
         """
@@ -358,13 +384,15 @@ class SoundCloud(BaseSound):
         }
         return self._get_searches(link, **param)
 
-    def get_search_albums(self,
-                          text: str,
-                          facet: str = 'genre',
-                          variant_ids: str = '',
-                          limit: int = 20,
-                          offset: int = 0,
-                          linked_partitioning: int = 1):
+    def get_search_albums(
+            self,
+            text: str,
+            facet: str = 'genre',
+            variant_ids: str = '',
+            limit: int = 20,
+            offset: int = 0,
+            linked_partitioning: int = 1
+    ):
         """
         Get All Search Albums By Text To Search
         """
@@ -379,13 +407,15 @@ class SoundCloud(BaseSound):
         }
         return self._get_searches(link, **param)
 
-    def get_search_playlists(self,
-                             text: str,
-                             facet: str = 'genre',
-                             variant_ids: str = '',
-                             limit: int = 20,
-                             offset: int = 0,
-                             linked_partitioning: int = 1):
+    def get_search_playlists(
+            self,
+            text: str,
+            facet: str = 'genre',
+            variant_ids: str = '',
+            limit: int = 20,
+            offset: int = 0,
+            linked_partitioning: int = 1
+    ):
         """
         Get All Search Playlists By Text To Search
         """
@@ -415,11 +445,13 @@ class SoundCloud(BaseSound):
         """
         return self.get_user_tracks(self.my_account_id, representation='owner')
 
-    def get_user_followings_not_followed_by_me(self,
-                                               user_id: int,
-                                               limit: int = 3,
-                                               offset: int = 0,
-                                               linked_partitioning: int = 1):
+    def get_user_followings_not_followed_by_me(
+            self,
+            user_id: int,
+            limit: int = 3,
+            offset: int = 0,
+            linked_partitioning: int = 1
+    ):
         """
         Get User's Following Users, Which Not Followed By Me
         """
@@ -431,11 +463,13 @@ class SoundCloud(BaseSound):
         }
         return self._get_users(link, **param)
 
-    def get_user_followers_followed_by_me(self,
-                                          user_id: int,
-                                          limit: int = 10,
-                                          offset: int = 0,
-                                          linked_partitioning: int = 1):
+    def get_user_followers_followed_by_me(
+            self,
+            user_id: int,
+            limit: int = 10,
+            offset: int = 0,
+            linked_partitioning: int = 1
+    ):
         """
         Get User's Follower Users, Which Followed By Me
         """
@@ -447,11 +481,13 @@ class SoundCloud(BaseSound):
         }
         return self._get_users(link, **param)
 
-    def get_my_user_conversation(self,
-                                 user_id: int,
-                                 limit: int = 10,
-                                 offset: int = 0,
-                                 linked_partitioning: int = 1):
+    def get_my_user_conversation(
+            self,
+            user_id: int,
+            limit: int = 10,
+            offset: int = 0,
+            linked_partitioning: int = 1
+    ):
         """
         Get My Conversation Messages By User ID
         """
@@ -463,10 +499,12 @@ class SoundCloud(BaseSound):
         }
         return self._get_conversation_messages(link, **param)
 
-    def get_my_conversations_thumb(self,
-                                   limit: int = 10,
-                                   offset: int = 0,
-                                   linked_partitioning: int = 1):
+    def get_my_conversations_thumb(
+            self,
+            limit: int = 10,
+            offset: int = 0,
+            linked_partitioning: int = 1
+    ):
         """
         Get My Conversations Thumb {Last Message}
         """
@@ -478,11 +516,13 @@ class SoundCloud(BaseSound):
         }
         return self._get_conversations(link, **param)
 
-    def get_my_unread_conversations(self,
-                                    force: int = 1,
-                                    limit: int = 20,
-                                    offset: int = 0,
-                                    linked_partitioning: int = 1):
+    def get_my_unread_conversations(
+            self,
+            force: int = 1,
+            limit: int = 20,
+            offset: int = 0,
+            linked_partitioning: int = 1
+    ):
         """
         Get My Unread Conversations
         """
@@ -517,8 +557,7 @@ class SoundCloud(BaseSound):
         }
         return self._get_reposts(link, **param)
 
-    def get_my_liked_track_ids(self,
-                               limit: int = 200):
+    def get_my_liked_track_ids(self, limit: int = 200):
         """
         Get My {Logged User} Liked Tracks IDs
         """
@@ -529,8 +568,7 @@ class SoundCloud(BaseSound):
         }
         return self._get_id_list(link, **param)
 
-    def get_my_track_reposts_ids(self,
-                                 limit: int = 200):
+    def get_my_track_reposts_ids(self, limit: int = 200):
         """
         Get My {Logged User} Track Reposts IDs
         """
@@ -540,9 +578,11 @@ class SoundCloud(BaseSound):
         }
         return self._get_id_list(link, **param)
 
-    def get_my_liked_playlist_ids(self,
-                                  limit: int = 5000,
-                                  linked_partitioning: int = 1):
+    def get_my_liked_playlist_ids(
+            self,
+            limit: int = 5000,
+            linked_partitioning: int = 1
+    ):
         """
         Get My {Logged User} Liked Playlist IDs
         """
@@ -553,8 +593,7 @@ class SoundCloud(BaseSound):
         }
         return self._get_id_list(link, **param)
 
-    def get_my_playlist_reposts_ids(self,
-                                    limit: int = 200):
+    def get_my_playlist_reposts_ids(self, limit: int = 200):
         """
         Get My {Logged User} Playlist Reposts IDs
         """
@@ -564,9 +603,11 @@ class SoundCloud(BaseSound):
         }
         return self._get_id_list(link, **param)
 
-    def get_my_followers_ids(self,
-                             limit: int = 5000,
-                             linked_partitioning: int = 1):
+    def get_my_followers_ids(
+            self,
+            limit: int = 5000,
+            linked_partitioning: int = 1
+    ):
         """
         Get My {Logged User} Followers IDs
         """
@@ -577,9 +618,11 @@ class SoundCloud(BaseSound):
         }
         return self._get_id_list(link, **param)
 
-    def get_my_following_ids(self,
-                             limit: int = 5000,
-                             linked_partitioning: int = 1):
+    def get_my_following_ids(
+            self,
+            limit: int = 5000,
+            linked_partitioning: int = 1
+    ):
         """
         Get My {Logged User} Followings IDs
         """
