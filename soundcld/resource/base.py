@@ -26,6 +26,12 @@ class BaseData:
         """
         return from_dict(cls, d, cls.dacite_config)
 
+    def __getitem__(self, item):
+        try:
+            return getattr(self, item)
+        except AttributeError:
+            raise KeyError(f"Key '{item}' not found.")
+
 
 @dataclass
 class BaseItem(BaseData):
