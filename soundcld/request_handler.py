@@ -70,7 +70,8 @@ class BaseReq(Generic[T]):
 @dataclass
 class GetReq(BaseReq, Generic[T]):
     """
-    Core Class To Send GET Request To Soundcloud
+    Core Class To Send GET Request
+    To Soundcloud
     """
     return_type: T
 
@@ -132,6 +133,10 @@ class CollectionGetReq(GetReq, Generic[T]):
 
 @dataclass
 class PutReq(BaseReq):
+    """
+    Core Class To Send PUT Request
+    To Soundcloud
+    """
     def _load_href(
             self,
             url: str,

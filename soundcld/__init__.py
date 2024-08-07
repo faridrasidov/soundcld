@@ -182,7 +182,8 @@ class SoundCloud(BaseSound):
             linked_partitioning: int = 1
     ):
         """
-        Get User's Following Users, Which Not Followed By Target User
+        Get User's Following Users,
+        Which Not Followed By Target User
         """
         link = f'/users/{user_id}/followings/not_followed_by/{target_id}'
         param = {
@@ -201,7 +202,8 @@ class SoundCloud(BaseSound):
             linked_partitioning: int = 1
     ):
         """
-        Get User's Follower Users, Which Followed By Target User
+        Get User's Follower Users,
+        Which Followed By Target User
         """
         link = f'/users/{user_id}/followers/followed_by/{target_id}'
         param = {
@@ -324,8 +326,8 @@ class SoundCloud(BaseSound):
             linked_partitioning: int = 1
     ):
         """
-        Get All Search Result {User, Track, Playlist}
-        By Text To Search
+        Get All Search Result {User, Track,
+        Playlist, Album} By Text To Search
         """
         link = '/search'
         param = {
@@ -441,7 +443,7 @@ class SoundCloud(BaseSound):
 
     def get_my_tracks(self):
         """
-        Get My Tracks
+        Get My {Logged-In User} Tracks
         """
         return self.get_user_tracks(self.my_account_id, representation='owner')
 
@@ -453,7 +455,8 @@ class SoundCloud(BaseSound):
             linked_partitioning: int = 1
     ):
         """
-        Get User's Following Users, Which Not Followed By Me
+        Get User's Following Users,
+        Which Not Followed By Me {Logged-In User}
         """
         link = f'/users/{user_id}/followings/not_followed_by/{self.my_account_id}'
         param = {
@@ -471,7 +474,8 @@ class SoundCloud(BaseSound):
             linked_partitioning: int = 1
     ):
         """
-        Get User's Follower Users, Which Followed By Me
+        Get User's Follower Users,
+        Which Followed By Me {Logged-In User}
         """
         link = f'/users/{user_id}/followers/followed_by/{self.my_account_id}'
         param = {
@@ -489,7 +493,7 @@ class SoundCloud(BaseSound):
             linked_partitioning: int = 1
     ):
         """
-        Get My Conversation Messages By User ID
+        Get My {Logged-In User} Conversation Messages By User ID
         """
         link = f'/users/{self.my_account_id}/conversations/{user_id}/messages'
         param = {
@@ -506,7 +510,7 @@ class SoundCloud(BaseSound):
             linked_partitioning: int = 1
     ):
         """
-        Get My Conversations Thumb {Last Message}
+        Get My {Logged-In User} Conversations Thumb {Last Message}
         """
         link = f'/users/{self.my_account_id}/conversations'
         param = {
@@ -524,7 +528,7 @@ class SoundCloud(BaseSound):
             linked_partitioning: int = 1
     ):
         """
-        Get My Unread Conversations
+        Get My {Logged-In User} Unread Conversations
         """
         link = f'/users/{self.my_account_id}/conversations/unread'
         param = {
@@ -537,7 +541,7 @@ class SoundCloud(BaseSound):
 
     def get_my_streams(self, limit: int = 24):
         """
-        Get User's Streams/Reposts By User ID
+        Get My {Logged-In User} Streams/Reposts By User ID
         """
         link = f'/stream/users/{self.my_account_id}'
         param = {
@@ -548,7 +552,7 @@ class SoundCloud(BaseSound):
 
     def get_my_reposts(self, limit: int = 24):
         """
-        Get User's Reposts By User ID
+        Get My {Logged-In User} Reposts
         """
         link = f'/stream/users/{self.my_account_id}/reposts'
         param = {
@@ -559,7 +563,7 @@ class SoundCloud(BaseSound):
 
     def get_my_liked_track_ids(self, limit: int = 200):
         """
-        Get My {Logged User} Liked Tracks IDs
+        Get My {Logged-In User} Liked Tracks IDs
         """
         link = '/me/track_likes/ids'
         param = {
@@ -570,7 +574,7 @@ class SoundCloud(BaseSound):
 
     def get_my_track_reposts_ids(self, limit: int = 200):
         """
-        Get My {Logged User} Track Reposts IDs
+        Get My {Logged-In User} Track Reposts IDs
         """
         link = '/me/track_reposts/ids'
         param = {
@@ -584,7 +588,7 @@ class SoundCloud(BaseSound):
             linked_partitioning: int = 1
     ):
         """
-        Get My {Logged User} Liked Playlist IDs
+        Get My {Logged-In User} Liked Playlist IDs
         """
         link = '/me/playlist_likes/ids'
         param = {
@@ -595,7 +599,7 @@ class SoundCloud(BaseSound):
 
     def get_my_playlist_reposts_ids(self, limit: int = 200):
         """
-        Get My {Logged User} Playlist Reposts IDs
+        Get My {Logged-In User} Playlist Reposts IDs
         """
         link = '/me/playlist_reposts/ids'
         param = {
@@ -609,7 +613,7 @@ class SoundCloud(BaseSound):
             linked_partitioning: int = 1
     ):
         """
-        Get My {Logged User} Followers IDs
+        Get My {Logged-In User} Followers IDs
         """
         link = '/me/followers/ids'
         param = {
@@ -624,7 +628,7 @@ class SoundCloud(BaseSound):
             linked_partitioning: int = 1
     ):
         """
-        Get My {Logged User} Followings IDs
+        Get My {Logged-In User} Followings IDs.
         """
         link = f'/users/{self.my_account_id}/followings/ids'
         param = {
@@ -644,7 +648,7 @@ class SoundCloud(BaseSound):
             last_name: str = ''
     ):
         """
-        Change My User Information.
+        Changes My {Logged-In User} Information.
         """
         link = '/me'
         payload = {
