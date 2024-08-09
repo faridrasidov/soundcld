@@ -145,6 +145,9 @@ class BaseSound:
     def _get_likes(self, req: str, **param) -> Iterator[Like]:
         return CollectionGetReq[Like](self, req, Like)(**param)
 
+    def _get_resolve(self, resolve_link:str):
+        return GetReq[SearchItem](self, '/resolve', SearchItem)(url=resolve_link)
+
     def _get_searches(self, req: str, **param) -> Iterator[SearchItem]:
         param['user_id'] = self.data['user_id']
         return CollectionGetReq[SearchItem](self, req, SearchItem)(**param)

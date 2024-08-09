@@ -316,6 +316,13 @@ class SoundCloud(BaseSound):
         link = f'/tracks/{track_id}/playlists_without_albums'
         return self._get_album_playlists(link)
 
+    def get_resolve(self, link:str):
+        """
+        Gets The Resource At Given URL
+        if Link Exists, Otherwise Return Nothing
+        """
+        return self._get_resolve(link)
+
     def get_search_all(
             self,
             text: str,
