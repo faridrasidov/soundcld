@@ -167,3 +167,46 @@ class PutReq(BaseReq):
         print('User Information Updated.') if data is not None else (
             print('User Information Not Updated.'))
         return bool(data)
+
+
+@dataclass
+class PutOptReq(BaseReq):
+    def _load_href(self, url: str, param: dict):
+        params = urllib.parse.urlencode(
+            param,
+            quote_via=urllib.parse.quote
+        )
+        self.client.cookies['Content-Length'] = '0'
+        with requests.options(
+                url=url,
+                params=params,
+                timeout=20,
+                cookies=self.client.cookies,
+                headers=self.client.headers
+        ) as req:
+            if req.status_code not in [200, 201]:
+                print(f'Something Went Wrong. Can\'t Get Options.'
+                      f'Error {req.status_code}')
+            req.raise_for_status()
+
+        with requests.put(
+                url=url,
+                params=params,
+                json={},
+                timeout=20,
+                cookies=self.client.cookies,
+                headers=self.client.headers
+        ) as req:
+            if req.status_code not in [200, 201]:
+                print(f'Something Went Wrong. Can\'t Put Request.'
+                      f'Error {req.status_code}')
+                return {}
+            req.raise_for_status()
+            return {'status': 'ok'}
+
+    def __call__(self, **kwargs):
+        self._call_params(**kwargs)
+        data = self._load_href(self.resource_url, self.params)
+        print('User Information Updated.') if data is not None else (
+            print('User Information Not Updated.'))
+        return bool(data)
