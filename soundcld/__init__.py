@@ -637,20 +637,21 @@ class SoundCloud(BaseSound):
         }
         return self._get_id_list(link, **param)
 
-    def put_me_info(
+    def change_my_profile_info(
             self,
-            permalink: str,
-            username: str,
-            city: str = '',
-            country_code: str = 'EN',
-            description: str = '',
-            first_name: str = '',
-            last_name: str = ''
+            permalink: str = None,
+            username: str = None,
+            city: str = None,
+            country_code: str = None,
+            description: str = None,
+            first_name: str = None,
+            last_name: str = None
     ):
         """
         Changes My {Logged-In User} Information.
         """
         link = '/me'
+        last_info = self.get_user(self.my_account_id)
         payload = {
             'city': city,
             'country_code': country_code,
@@ -660,4 +661,7 @@ class SoundCloud(BaseSound):
             'permalink': permalink,
             'username': username
         }
+        for item, value in payload.items():
+            if not value:
+                payload[item] = last_info[item]
         return self._put_payload(link, payload)
