@@ -88,6 +88,16 @@ class BaseSound:
         with open(confDirectory, 'w', encoding='utf-8') as file:
             json.dump(config, file, indent=4)
 
+    def _update_cookies(self):
+        cookie = {
+            'moe_uuid': self.cookies['moe_uuid'],
+            'oauth_token': self.cookies['oauth_token'],
+            'sc_anonymous_id': self.cookies['sc_anonymous_id'],
+            'datadome': self.cookies['datadome']
+        }
+        with open(cookieDirectory, 'w', encoding='utf-8') as file:
+            json.dump(cookie, file, indent=4)
+
     def __get_cookies(self) -> None:
         if os.path.exists(cookieDirectory):
             with open(cookieDirectory, 'r', encoding='utf-8') as file:
