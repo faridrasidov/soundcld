@@ -15,7 +15,7 @@ from soundcld.request_handler import (
     GetReq,
     ListGetReq,
     CollectionGetReq,
-    PutReq, PutOptReq
+    PutReq
 )
 from soundcld.resource import (
     SearchItem, Like, RepostItem, StreamItem,
@@ -179,14 +179,9 @@ class BaseSound:
     def _get_web_profile_list(self, req: str) -> List[WebProfile]:
         return ListGetReq[WebProfile](self, req, WebProfile)()
 
-    def _put_payload(self, req: str, payload: dict) -> bool:
+    def _put_payload(self, req: str, **payload: dict) -> bool:
         if self.is_logged_in():
-            return PutReq(self, req)(payload)
-        return False
-
-    def _put_opt_payload(self, req: str) -> bool:
-        if self.is_logged_in():
-            return PutOptReq(self, req)()
+            return PutReq(self, req)(**payload)
         return False
 
     def generate_client_id(self) -> None:
