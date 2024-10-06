@@ -59,7 +59,8 @@ named cookies.json. You will also need to change your "client_id" in data.json i
 {
   "moe_uuid": "<moe_uuid>",
   "oauth_token": "<oauth_token>",
-  "sc_anonymous_id": "<sc_anonymous_id>"
+  "sc_anonymous_id": "<sc_anonymous_id>",
+  "datadome": "<datadome>"
 }
 ```
 
