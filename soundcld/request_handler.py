@@ -201,3 +201,72 @@ class PutReq(BaseReq):
             print('User Information Updated.')
         else:
             print('User Information Not Updated.')
+
+@dataclass
+class DeleteReq(BaseReq):
+    """
+    Core Class To Send PUT Request
+    To Soundcloud
+    """
+    def _load_href(
+            self,
+            url: str,
+            param: dict,
+            payload: dict
+    ) -> Dict:
+        params = urllib.parse.urlencode(
+            param,
+            quote_via=urllib.parse.quote
+        )
+        delete_cookies = self.client.cookies
+        delete_headers = self.client.headers
+        delete_headers['Content-Length'] = '0'
+        delete_headers['x-datadome-clientid'] = self.client.cookies['datadome']
+        if payload:
+            my_payload = json.dumps(payload)
+            my_payload = my_payload.replace(': "', ':"')
+            my_payload = my_payload.replace(', ', ',')
+            delete_headers['Content-Length'] = f'{len(my_payload)}'
+        with requests.options(
+                url=url,
+                timeout=20,
+                cookies=delete_cookies,
+                headers=delete_headers
+        ) as req:
+            if req.status_code not in [200, 201]:
+                print(f'Something Went Wrong. Can\'t Get Options.'
+                      f'Error {req.status_code}')
+                return {'status': 'err'}
+            else:
+                print(f'option : {req.status_code} : {req.text}')
+            req.raise_for_status()
+        req = requests.delete(
+                url=url,
+                params=params,
+                json=payload,
+                timeout=20,
+                cookies=delete_cookies,
+                headers=delete_headers
+        )
+        if 'x-set-cookie' in req.headers.keys():
+            x_set_cookie = req.headers['x-set-cookie']
+            x_set_cookie = x_set_cookie.split(';')
+            for item in x_set_cookie:
+                if 'datadome' in item:
+                    x_set_datadome_cookie = item.split('=')[1]
+                    self.client.cookies['datadome'] = x_set_datadome_cookie
+                    break
+        if req.status_code not in [200, 201]:
+            print(f'Something Went Wrong. Error {req.status_code}')
+            return {'status': 'err'}
+        print(f'deleting : {req.status_code} : {req.text}')
+        req.raise_for_status()
+        return {'status': 'ok'}
+
+    def __call__(self, **kwargs):
+        self._call_params(**kwargs)
+        data = self._load_href(self.resource_url, self.params, kwargs)
+        if data['status'] == 'ok':
+            print('User Information Updated.')
+        else:
+            print('User Information Not Updated.')
