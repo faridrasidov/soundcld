@@ -1,6 +1,7 @@
 """
 Request Handler Of SoundCld
 """
+import json
 import urllib.parse
 from dataclasses import dataclass
 from typing import Optional, Dict, Generic, TypeVar, get_origin, Union, List
@@ -147,66 +148,56 @@ class PutReq(BaseReq):
             param,
             quote_via=urllib.parse.quote
         )
-        with requests.put(
-                url=url,
-                params=params,
-                json=payload,
-                timeout=20,
-                cookies=self.client.cookies,
-                headers=self.client.headers
-        ) as req:
-            if req.status_code not in [200, 201]:
-                print(f'Something Went Wrong. Error {req.status_code}')
-                return {}
-            req.raise_for_status()
-            return {'status': 'ok'}
-
-    def __call__(self, payload, **kwargs):
-        self._call_params(**kwargs)
-        data = self._load_href(self.resource_url, self.params, payload)
-        print('User Information Updated.') if data is not None else (
-            print('User Information Not Updated.'))
-        return bool(data)
-
-
-@dataclass
-class PutOptReq(BaseReq):
-    def _load_href(self, url: str, param: dict):
-        params = urllib.parse.urlencode(
-            param,
-            quote_via=urllib.parse.quote
-        )
-        self.client.cookies['Content-Length'] = '0'
+        put_cookies = self.client.cookies
+        put_headers = self.client.headers
+        put_headers['Content-Length'] = '0'
+        put_headers['x-datadome-clientid'] = self.client.cookies['datadome']
+        if payload:
+            my_payload = json.dumps(payload)
+            my_payload = my_payload.replace(': "', ':"')
+            my_payload = my_payload.replace(', ', ',')
+            put_headers['Content-Length'] = f'{len(my_payload)}'
         with requests.options(
                 url=url,
-                params=params,
                 timeout=20,
-                cookies=self.client.cookies,
-                headers=self.client.headers
+                cookies=put_cookies,
+                headers=put_headers
         ) as req:
             if req.status_code not in [200, 201]:
                 print(f'Something Went Wrong. Can\'t Get Options.'
                       f'Error {req.status_code}')
+                return {'status': 'err'}
+            else:
+                print(f'option : {req.status_code} : {req.text}')
             req.raise_for_status()
-
-        with requests.put(
+        req = requests.put(
                 url=url,
                 params=params,
-                json={},
+                json=payload,
                 timeout=20,
-                cookies=self.client.cookies,
-                headers=self.client.headers
-        ) as req:
-            if req.status_code not in [200, 201]:
-                print(f'Something Went Wrong. Can\'t Put Request.'
-                      f'Error {req.status_code}')
-                return {}
-            req.raise_for_status()
-            return {'status': 'ok'}
+                cookies=put_cookies,
+                headers=put_headers
+        )
+        if 'x-set-cookie' in req.headers.keys():
+            x_set_cookie = req.headers['x-set-cookie']
+            x_set_cookie = x_set_cookie.split(';')
+            for item in x_set_cookie:
+                if 'datadome' in item:
+                    x_set_datadome_cookie = item.split('=')[1]
+                    self.client.cookies['datadome'] = x_set_datadome_cookie
+                    break
+        if req.status_code not in [200, 201]:
+            print(f'Something Went Wrong. Error {req.status_code}')
+            return {'status': 'err'}
+        print(f'putting : {req.status_code} : {req.text}')
+        req.raise_for_status()
+        return {'status': 'ok'}
 
     def __call__(self, **kwargs):
         self._call_params(**kwargs)
-        data = self._load_href(self.resource_url, self.params)
-        print('User Information Updated.') if data is not None else (
-            print('User Information Not Updated.'))
-        return bool(data)
+        data = self._load_href(self.resource_url, self.params, kwargs)
+
+        if data['status'] == 'ok':
+            print('User Information Updated.')
+        else:
+            print('User Information Not Updated.')
