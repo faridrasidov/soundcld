@@ -15,7 +15,8 @@ from soundcld.request_handler import (
     GetReq,
     ListGetReq,
     CollectionGetReq,
-    PutReq
+    PutReq,
+    DeleteReq
 )
 from soundcld.resource import (
     SearchItem, Like, RepostItem, StreamItem,
@@ -192,6 +193,11 @@ class BaseSound:
     def _put_payload(self, req: str, **payload: dict) -> bool:
         if self.is_logged_in():
             return PutReq(self, req)(**payload)
+        return False
+
+    def _delete_payload(self, req: str, **payload: dict) -> bool:
+        if self.is_logged_in():
+            return DeleteReq(self, req)(**payload)
         return False
 
     def generate_client_id(self) -> None:
