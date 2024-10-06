@@ -664,8 +664,20 @@ class SoundCloud(BaseSound):
         for item, value in payload.items():
             if not value:
                 payload[item] = last_info[item]
-        return self._put_payload(link, payload)
+        return self._put_payload(link, **payload)
 
     def like_track(self, track_id:int):
+        """
+        Likes The Track by Me {Logged-In User}.
+        """
         link = f'/users/{self.my_account_id}/track_likes/{track_id}'
-        return self._put_opt_payload(link)
+        self._update_cookies()
+        return self._put_payload(link)
+
+    def like_playlist(self, playlist_id: int):
+        """
+        Likes The Playlist or Album by Me {Logged-In User}.
+        """
+        link = f'/users/{self.my_account_id}/playlist_likes/{playlist_id}'
+        self._update_cookies()
+        return self._put_payload(link)
