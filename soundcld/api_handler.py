@@ -33,7 +33,6 @@ scriptDirectory = os.path.dirname(os.path.abspath(__file__))
 confDirectory = scriptDirectory + '/data.json'
 cookieDirectory = scriptDirectory + '/cookies.json'
 headerDirectory = scriptDirectory + '/headers.json'
-infoDirectory = scriptDirectory + '/run_data.json'
 
 
 @dataclass
@@ -257,7 +256,7 @@ class BaseSound:
         """
         if self.cookies:
             if all(self.cookies.values()):
-                if os.path.exists(infoDirectory):
+                if os.path.exists(confDirectory):
                     time_diff = self.__valid_time_diff()
                     if 0 < time_diff < 60:
                         self.__save_validate_time()
@@ -277,17 +276,19 @@ class BaseSound:
                     return True
         return False
 
-    @staticmethod
-    def __save_validate_time():
+    def __save_validate_time(self):
         json_dict = {
+            'user_id': self.data['user_id'],
+            'client_id': self.data['client_id'],
+            'app_version': self.data['app_version'],
             'last_validate': datetime.now().isoformat()
         }
-        with open(infoDirectory, 'w', encoding='utf-8') as file:
+        with open(confDirectory, 'w', encoding='utf-8') as file:
             json.dump(json_dict, file, indent=4)
 
     @staticmethod
     def __valid_time_diff() -> float:
-        with open(infoDirectory, 'r', encoding='utf-8') as file:
+        with open(confDirectory, 'r', encoding='utf-8') as file:
             loaded_json = json.load(file)
             if 'last_validate' in loaded_json.keys():
                 try:
