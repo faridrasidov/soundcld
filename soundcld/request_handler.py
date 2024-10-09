@@ -133,11 +133,55 @@ class CollectionGetReq(GetReq, Generic[T]):
 
 
 @dataclass
-class PutReq(BaseReq):
+class ComplexReq:
+    """
+    Core Class To Handle Complex
+    Requests Common Functionality.
+    """
+
+    def _load_option(self, client, url, payload):
+        self.complex_cookies = client.cookies
+        self.complex_headers = client.headers
+        self.complex_headers['Content-Length'] = '0'
+        self.complex_headers['x-datadome-clientid'] = client.cookies['datadome']
+        if payload:
+            my_payload = json.dumps(payload)
+            my_payload = my_payload.replace(': "', ':"')
+            my_payload = my_payload.replace(', ', ',')
+            self.complex_headers['Content-Length'] = f'{len(my_payload)}'
+        with requests.options(
+                url=url,
+                timeout=20,
+                cookies=self.complex_cookies,
+                headers=self.complex_headers
+        ) as req:
+            if req.status_code not in [200, 201]:
+                print(f'Something Went Wrong. Can\'t Get Options.'
+                      f'Error {req.status_code}')
+                return {'status': 'err'}
+            else:
+                print(f'option : {req.status_code} : {req.text}')
+            req.raise_for_status()
+
+    @staticmethod
+    def _update_datadome(req: requests.Response, client):
+        if 'x-set-cookie' in req.headers.keys():
+            x_set_cookie = req.headers['x-set-cookie']
+            x_set_cookie = x_set_cookie.split(';')
+            for item in x_set_cookie:
+                if 'datadome' in item:
+                    x_set_datadome_cookie = item.split('=')[1]
+                    client.cookies['datadome'] = x_set_datadome_cookie
+                    break
+
+
+@dataclass
+class PutReq(BaseReq, ComplexReq):
     """
     Core Class To Send PUT Request
     To Soundcloud
     """
+
     def _load_href(
             self,
             url: str,
@@ -148,44 +192,16 @@ class PutReq(BaseReq):
             param,
             quote_via=urllib.parse.quote
         )
-        put_cookies = self.client.cookies
-        put_headers = self.client.headers
-        put_headers['Content-Length'] = '0'
-        put_headers['x-datadome-clientid'] = self.client.cookies['datadome']
-        if payload:
-            my_payload = json.dumps(payload)
-            my_payload = my_payload.replace(': "', ':"')
-            my_payload = my_payload.replace(', ', ',')
-            put_headers['Content-Length'] = f'{len(my_payload)}'
-        with requests.options(
-                url=url,
-                timeout=20,
-                cookies=put_cookies,
-                headers=put_headers
-        ) as req:
-            if req.status_code not in [200, 201]:
-                print(f'Something Went Wrong. Can\'t Get Options.'
-                      f'Error {req.status_code}')
-                return {'status': 'err'}
-            else:
-                print(f'option : {req.status_code} : {req.text}')
-            req.raise_for_status()
+        self._load_option(client=self.client, url=url, payload=payload)
         req = requests.put(
-                url=url,
-                params=params,
-                json=payload,
-                timeout=20,
-                cookies=put_cookies,
-                headers=put_headers
+            url=url,
+            params=params,
+            json=payload,
+            timeout=20,
+            cookies=self.complex_cookies,
+            headers=self.complex_headers
         )
-        if 'x-set-cookie' in req.headers.keys():
-            x_set_cookie = req.headers['x-set-cookie']
-            x_set_cookie = x_set_cookie.split(';')
-            for item in x_set_cookie:
-                if 'datadome' in item:
-                    x_set_datadome_cookie = item.split('=')[1]
-                    self.client.cookies['datadome'] = x_set_datadome_cookie
-                    break
+        self._update_datadome(req=req, client=self.client)
         if req.status_code not in [200, 201]:
             print(f'Something Went Wrong. Error {req.status_code}')
             return {'status': 'err'}
@@ -196,18 +212,19 @@ class PutReq(BaseReq):
     def __call__(self, **kwargs):
         self._call_params(**kwargs)
         data = self._load_href(self.resource_url, self.params, kwargs)
-
         if data['status'] == 'ok':
             print('User Information Updated.')
         else:
             print('User Information Not Updated.')
 
+
 @dataclass
-class DeleteReq(BaseReq):
+class DeleteReq(BaseReq, ComplexReq):
     """
-    Core Class To Send PUT Request
+    Core Class To Send Delete Request
     To Soundcloud
     """
+
     def _load_href(
             self,
             url: str,
@@ -218,44 +235,16 @@ class DeleteReq(BaseReq):
             param,
             quote_via=urllib.parse.quote
         )
-        delete_cookies = self.client.cookies
-        delete_headers = self.client.headers
-        delete_headers['Content-Length'] = '0'
-        delete_headers['x-datadome-clientid'] = self.client.cookies['datadome']
-        if payload:
-            my_payload = json.dumps(payload)
-            my_payload = my_payload.replace(': "', ':"')
-            my_payload = my_payload.replace(', ', ',')
-            delete_headers['Content-Length'] = f'{len(my_payload)}'
-        with requests.options(
-                url=url,
-                timeout=20,
-                cookies=delete_cookies,
-                headers=delete_headers
-        ) as req:
-            if req.status_code not in [200, 201]:
-                print(f'Something Went Wrong. Can\'t Get Options.'
-                      f'Error {req.status_code}')
-                return {'status': 'err'}
-            else:
-                print(f'option : {req.status_code} : {req.text}')
-            req.raise_for_status()
+        self._load_option(client=self.client, url=url, payload=payload)
         req = requests.delete(
-                url=url,
-                params=params,
-                json=payload,
-                timeout=20,
-                cookies=delete_cookies,
-                headers=delete_headers
+            url=url,
+            params=params,
+            json=payload,
+            timeout=20,
+            cookies=self.complex_cookies,
+            headers=self.complex_headers
         )
-        if 'x-set-cookie' in req.headers.keys():
-            x_set_cookie = req.headers['x-set-cookie']
-            x_set_cookie = x_set_cookie.split(';')
-            for item in x_set_cookie:
-                if 'datadome' in item:
-                    x_set_datadome_cookie = item.split('=')[1]
-                    self.client.cookies['datadome'] = x_set_datadome_cookie
-                    break
+        self._update_datadome(req=req, client=self.client)
         if req.status_code not in [200, 201]:
             print(f'Something Went Wrong. Error {req.status_code}')
             return {'status': 'err'}
