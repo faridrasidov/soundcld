@@ -259,3 +259,47 @@ class DeleteReq(BaseReq, ComplexReq):
             print('User Information Updated.')
         else:
             print('User Information Not Updated.')
+
+
+@dataclass
+class PostReq(BaseReq, ComplexReq):
+    """
+    Core Class To Send Post Request
+    To Soundcloud
+    """
+
+    def _load_href(
+            self,
+            url: str,
+            param: dict,
+            payload: dict
+    ) -> Dict:
+        params = urllib.parse.urlencode(
+            param,
+            quote_via=urllib.parse.quote
+        )
+        self._load_option(client=self.client, url=url, payload=payload)
+        req = requests.post(
+            url=url,
+            params=params,
+            json=payload,
+            timeout=20,
+            cookies=self.complex_cookies,
+            headers=self.complex_headers
+        )
+        self._update_datadome(req=req, client=self.client)
+        if req.status_code not in [200, 201]:
+            print(f'Something Went Wrong. Error {req.status_code}')
+            return {'status': 'err'}
+        print(f'posting : {req.status_code} : {req.text}')
+        req.raise_for_status()
+        return {'status': 'ok'}
+
+    def __call__(self, **kwargs):
+        self._call_params(**kwargs)
+        data = self._load_href(self.resource_url, self.params, kwargs)
+
+        if data['status'] == 'ok':
+            print('User Information Updated.')
+        else:
+            print('User Information Not Updated.')
