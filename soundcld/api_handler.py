@@ -17,7 +17,8 @@ from soundcld.request_handler import (
     ListGetReq,
     CollectionGetReq,
     PutReq,
-    DeleteReq
+    DeleteReq,
+    PostReq
 )
 from soundcld.resource import (
     SearchItem, Like, RepostItem, StreamItem,
@@ -199,6 +200,12 @@ class BaseSound:
 
     def _get_web_profile_list(self, req: str) -> List[WebProfile]:
         return ListGetReq[WebProfile](self, req, WebProfile)()
+
+    @update_cookies_after
+    def _post_payload(self, req: str, **payload: dict) -> bool:
+        if self.is_logged_in():
+            return PostReq(self, req)(**payload)
+        return False
 
     @update_cookies_after
     def _put_payload(self, req: str, **payload: dict) -> bool:
