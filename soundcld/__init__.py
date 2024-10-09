@@ -666,12 +666,11 @@ class SoundCloud(BaseSound):
                 payload[item] = last_info[item]
         return self._put_payload(link, **payload)
 
-    def like_track(self, track_id:int):
+    def like_track(self, track_id: int):
         """
         Likes The Track by Me {Logged-In User}.
         """
         link = f'/users/{self.my_account_id}/track_likes/{track_id}'
-        self._update_cookies()
         return self._put_payload(link)
 
     def like_playlist(self, playlist_id: int):
@@ -679,7 +678,6 @@ class SoundCloud(BaseSound):
         Likes The Playlist or Album by Me {Logged-In User}.
         """
         link = f'/users/{self.my_account_id}/playlist_likes/{playlist_id}'
-        self._update_cookies()
         return self._put_payload(link)
 
     def dislike_track(self, track_id: int):
@@ -687,7 +685,6 @@ class SoundCloud(BaseSound):
         Dislikes The Track by Me {Logged-In User}.
         """
         link = f'/users/{self.my_account_id}/track_likes/{track_id}'
-        self._update_cookies()
         return self._delete_payload(link)
 
     def dislike_playlist(self, playlist_id: int):
@@ -695,5 +692,4 @@ class SoundCloud(BaseSound):
         Dislikes The Playlist or Album by Me {Logged-In User}.
         """
         link = f'/users/{self.my_account_id}/playlist_likes/{playlist_id}'
-        self._update_cookies()
         return self._delete_payload(link)

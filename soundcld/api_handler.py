@@ -6,6 +6,7 @@ import os
 import re
 from dataclasses import dataclass
 from datetime import datetime
+from functools import wraps
 from typing import List, Union, Iterator
 
 import requests
@@ -33,6 +34,16 @@ scriptDirectory = os.path.dirname(os.path.abspath(__file__))
 confDirectory = scriptDirectory + '/data.json'
 cookieDirectory = scriptDirectory + '/cookies.json'
 headerDirectory = scriptDirectory + '/headers.json'
+
+
+def update_cookies_after(func):
+    @wraps(func)
+    def wrapper(self, *args, **kwargs):
+        result = func(self, *args, **kwargs)
+        self._update_cookies()
+        return result
+
+    return wrapper
 
 
 @dataclass
@@ -189,11 +200,13 @@ class BaseSound:
     def _get_web_profile_list(self, req: str) -> List[WebProfile]:
         return ListGetReq[WebProfile](self, req, WebProfile)()
 
+    @update_cookies_after
     def _put_payload(self, req: str, **payload: dict) -> bool:
         if self.is_logged_in():
             return PutReq(self, req)(**payload)
         return False
 
+    @update_cookies_after
     def _delete_payload(self, req: str, **payload: dict) -> bool:
         if self.is_logged_in():
             return DeleteReq(self, req)(**payload)
