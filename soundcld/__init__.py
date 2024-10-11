@@ -724,3 +724,52 @@ class SoundCloud(BaseSound):
         """
         link = f'/playlists/{playlist_id}'
         return self._delete_payload(link)
+
+    def add_track_to_playlist(
+            self,
+            playlist_id: int,
+            track_id: Union[int, List[int]]
+    ):
+        """
+        Adds Track Or List Of Tracks To The Playlist by Me {Logged-In User}.
+        """
+        link = f'/playlists/{playlist_id}'
+        temp_playlist = self.get_playlist(playlist_id)
+        temp_tracks = []
+        for item in temp_playlist.tracks:
+            temp_tracks.append(item.id)
+        if isinstance(track_id, int):
+            temp_tracks.append(track_id)
+        else:
+            temp_tracks.extend(track_id)
+        payload = {
+            'playlist': {
+                'tracks': temp_tracks
+            }
+        }
+        return self._put_payload(link, **payload)
+
+    def remove_track_from_playlist(
+            self,
+            playlist_id: int,
+            track_id: Union[int, List[int]]
+    ):
+        """
+        Removes Track Or List Of Tracks To The Playlist by Me {Logged-In User}.
+        """
+        link = f'/playlists/{playlist_id}'
+        temp_playlist = self.get_playlist(playlist_id)
+        temp_tracks = []
+        for item in temp_playlist.tracks:
+            temp_tracks.append(item.id)
+        if isinstance(track_id, int):
+            temp_tracks.remove(track_id)
+        else:
+            for item in track_id:
+                temp_tracks.remove(item)
+        payload = {
+            'playlist': {
+                'tracks': temp_tracks
+            }
+        }
+        return self._put_payload(link, **payload)
