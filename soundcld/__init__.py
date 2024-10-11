@@ -1,7 +1,7 @@
 """
 SoundCld Is Soundcloud-v2 api handler
 """
-from typing import List
+from typing import List, Union
 
 import soundcld.resource
 from .api_handler import BaseSound
@@ -692,4 +692,35 @@ class SoundCloud(BaseSound):
         Dislikes The Playlist or Album by Me {Logged-In User}.
         """
         link = f'/users/{self.my_account_id}/playlist_likes/{playlist_id}'
+        return self._delete_payload(link)
+
+    def create_playlist(
+            self,
+            playlist_name: str,
+            trak_id: Union[int, List[int]],
+            is_public: bool = True
+    ):
+        """
+        Creates The Playlist by Me {Logged-In User}.
+        """
+        link = f'/playlists'
+        payload = {
+            'playlist': {
+                'title': playlist_name,
+                'tracks': [trak_id],
+                '_resource_id': 'f-',
+                '_resource_type': 'playlist'
+            }
+        }
+        if is_public:
+            payload['sharing'] = 'public'
+        else:
+            payload['sharing'] = 'private'
+        return self._post_payload(link, **payload)
+
+    def delete_playlist(self, playlist_id: int):
+        """
+        Removes The Playlist by Me {Logged-In User}.
+        """
+        link = f'/playlists/{playlist_id}'
         return self._delete_payload(link)
