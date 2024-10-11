@@ -6,6 +6,7 @@ import os
 import re
 from dataclasses import dataclass
 from datetime import datetime
+from functools import wraps
 from typing import List, Union, Iterator
 
 import requests
@@ -15,7 +16,9 @@ from soundcld.request_handler import (
     GetReq,
     ListGetReq,
     CollectionGetReq,
-    PutReq
+    PutReq,
+    DeleteReq,
+    PostReq
 )
 from soundcld.resource import (
     SearchItem, Like, RepostItem, StreamItem,
@@ -32,7 +35,16 @@ scriptDirectory = os.path.dirname(os.path.abspath(__file__))
 confDirectory = scriptDirectory + '/data.json'
 cookieDirectory = scriptDirectory + '/cookies.json'
 headerDirectory = scriptDirectory + '/headers.json'
-infoDirectory = scriptDirectory + '/run_data.json'
+
+
+def update_cookies_after(func):
+    @wraps(func)
+    def wrapper(self, *args, **kwargs):
+        result = func(self, *args, **kwargs)
+        self._update_cookies()
+        return result
+
+    return wrapper
 
 
 @dataclass
@@ -87,6 +99,16 @@ class BaseSound:
         }
         with open(confDirectory, 'w', encoding='utf-8') as file:
             json.dump(config, file, indent=4)
+
+    def _update_cookies(self):
+        cookie = {
+            'moe_uuid': self.cookies['moe_uuid'],
+            'oauth_token': self.cookies['oauth_token'],
+            'sc_anonymous_id': self.cookies['sc_anonymous_id'],
+            'datadome': self.cookies['datadome']
+        }
+        with open(cookieDirectory, 'w', encoding='utf-8') as file:
+            json.dump(cookie, file, indent=4)
 
     def __get_cookies(self) -> None:
         if os.path.exists(cookieDirectory):
@@ -182,9 +204,22 @@ class BaseSound:
     def _get_web_profile_list(self, req: str) -> List[WebProfile]:
         return ListGetReq[WebProfile](self, req, WebProfile)()
 
-    def _put_payload(self, req: str, payload: dict) -> bool:
+    @update_cookies_after
+    def _post_payload(self, req: str, **payload: dict) -> bool:
         if self.is_logged_in():
-            return PutReq(self, req)(payload)
+            return PostReq(self, req)(**payload)
+        return False
+
+    @update_cookies_after
+    def _put_payload(self, req: str, **payload: dict) -> bool:
+        if self.is_logged_in():
+            return PutReq(self, req)(**payload)
+        return False
+
+    @update_cookies_after
+    def _delete_payload(self, req: str, **payload: dict) -> bool:
+        if self.is_logged_in():
+            return DeleteReq(self, req)(**payload)
         return False
 
     def generate_client_id(self) -> None:
@@ -244,7 +279,7 @@ class BaseSound:
         """
         if self.cookies:
             if all(self.cookies.values()):
-                if os.path.exists(infoDirectory):
+                if os.path.exists(confDirectory):
                     time_diff = self.__valid_time_diff()
                     if 0 < time_diff < 60:
                         self.__save_validate_time()
@@ -264,17 +299,19 @@ class BaseSound:
                     return True
         return False
 
-    @staticmethod
-    def __save_validate_time():
+    def __save_validate_time(self):
         json_dict = {
+            'user_id': self.data['user_id'],
+            'client_id': self.data['client_id'],
+            'app_version': self.data['app_version'],
             'last_validate': datetime.now().isoformat()
         }
-        with open(infoDirectory, 'w', encoding='utf-8') as file:
+        with open(confDirectory, 'w', encoding='utf-8') as file:
             json.dump(json_dict, file, indent=4)
 
     @staticmethod
     def __valid_time_diff() -> float:
-        with open(infoDirectory, 'r', encoding='utf-8') as file:
+        with open(confDirectory, 'r', encoding='utf-8') as file:
             loaded_json = json.load(file)
             if 'last_validate' in loaded_json.keys():
                 try:

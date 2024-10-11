@@ -1,7 +1,8 @@
 """
 SoundCld Is Soundcloud-v2 api handler
 """
-from typing import List
+from datetime import datetime
+from typing import List, Union
 
 import soundcld.resource
 from .api_handler import BaseSound
@@ -671,4 +672,174 @@ class SoundCloud(BaseSound):
         for item, value in payload.items():
             if not value:
                 payload[item] = last_info[item]
-        return self._put_payload(link, payload)
+        return self._put_payload(link, **payload)
+
+    def like_track(self, track_id: int):
+        """
+        Likes The Track by Me {Logged-In User}.
+        """
+        link = f'/users/{self.my_account_id}/track_likes/{track_id}'
+        return self._put_payload(link)
+
+    def like_playlist(self, playlist_id: int):
+        """
+        Likes The Playlist or Album by Me {Logged-In User}.
+        """
+        link = f'/users/{self.my_account_id}/playlist_likes/{playlist_id}'
+        return self._put_payload(link)
+
+    def dislike_track(self, track_id: int):
+        """
+        Dislikes The Track by Me {Logged-In User}.
+        """
+        link = f'/users/{self.my_account_id}/track_likes/{track_id}'
+        return self._delete_payload(link)
+
+    def dislike_playlist(self, playlist_id: int):
+        """
+        Dislikes The Playlist or Album by Me {Logged-In User}.
+        """
+        link = f'/users/{self.my_account_id}/playlist_likes/{playlist_id}'
+        return self._delete_payload(link)
+
+    def create_playlist(
+            self,
+            playlist_name: str,
+            trak_id: Union[int, List[int]],
+            is_public: bool = True
+    ):
+        """
+        Creates The Playlist by Me {Logged-In User}.
+        """
+        link = f'/playlists'
+        payload = {
+            'playlist': {
+                'title': playlist_name,
+                'tracks': [trak_id],
+                '_resource_id': 'f-',
+                '_resource_type': 'playlist'
+            }
+        }
+        if is_public:
+            payload['sharing'] = 'public'
+        else:
+            payload['sharing'] = 'private'
+        return self._post_payload(link, **payload)
+
+    def delete_playlist(self, playlist_id: int):
+        """
+        Removes The Playlist by Me {Logged-In User}.
+        """
+        link = f'/playlists/{playlist_id}'
+        return self._delete_payload(link)
+
+    def add_track_to_playlist(
+            self,
+            playlist_id: int,
+            track_id: Union[int, List[int]]
+    ):
+        """
+        Adds Track Or List Of Tracks To The Playlist by Me {Logged-In User}.
+        """
+        link = f'/playlists/{playlist_id}'
+        temp_playlist = self.get_playlist(playlist_id)
+        temp_tracks = []
+        for item in temp_playlist.tracks:
+            temp_tracks.append(item.id)
+        if isinstance(track_id, int):
+            temp_tracks.append(track_id)
+        else:
+            temp_tracks.extend(track_id)
+        payload = {
+            'playlist': {
+                'tracks': temp_tracks
+            }
+        }
+        return self._put_payload(link, **payload)
+
+    def remove_track_from_playlist(
+            self,
+            playlist_id: int,
+            track_id: Union[int, List[int]]
+    ):
+        """
+        Removes Track Or List Of Tracks To The Playlist by Me {Logged-In User}.
+        """
+        link = f'/playlists/{playlist_id}'
+        temp_playlist = self.get_playlist(playlist_id)
+        temp_tracks = []
+        for item in temp_playlist.tracks:
+            temp_tracks.append(item.id)
+        if isinstance(track_id, int):
+            temp_tracks.remove(track_id)
+        else:
+            for item in track_id:
+                temp_tracks.remove(item)
+        payload = {
+            'playlist': {
+                'tracks': temp_tracks
+            }
+        }
+        return self._put_payload(link, **payload)
+
+    def edit_playlist_info(
+            self,
+            playlist_id: int,
+            title: str = None,
+            description: str = None,
+            playlist_type: str = None,
+            release_date: str = None,
+            genre: str = None,
+            tag: str = None,
+            permalink: str = None
+    ):
+        """
+        Changes The Playlist Info by Me {Logged-In User}.
+
+        :param playlist_id: The ID Of Playlist
+        :param title: Title Of Playlist
+        :param description: Description Of Playlist
+        :param playlist_type: Must Be One Of These [playlist, album, compilation, single, ep]
+        :param release_date: Must Be In "year-month-day" Format
+        :param genre: Genre Of Playlist
+        :param tag: Tag or Tags Of Playlist
+        :param permalink: The Link Name Of Playlist
+        """
+        link = f'/playlists/{playlist_id}'
+        playlist_temp_data = self.get_playlist(playlist_id)
+        payload = {
+            'title': title,
+            'description': description,
+            'kind': playlist_type,
+            'release_date': release_date,
+            'genre': genre,
+            'tag_list': tag,
+            'permalink': permalink
+        }
+        temp_dict = {}
+        for item, value in playlist_temp_data.items():
+            temp_dict[item] = value
+        for item, value in payload.items():
+            if value:
+                temp_dict[item] = value
+                if item == 'permalink':
+                    temp_link = playlist_temp_data['permalink_url'].split('/')
+                    temp_link[-1] = temp_dict[item]
+                    temp_dict['permalink_url'] = '/'.join(temp_link)
+                elif item == 'kind':
+                    if not (temp_dict['release_date'] or payload['release_date']):
+                        print('release_date not added')
+                        return
+                    if value != 'playlist':
+                        temp_dict['set_type'] = value
+                    else:
+                        temp_dict['set_type'] = None
+        some_arr = []
+        for item in playlist_temp_data.tracks:
+            some_arr.append(item.id)
+        now = datetime.utcnow()
+        temp_dict['last_modified'] = f'{now.isoformat().split(".")[0]}Z'
+        temp_dict['tracks'] = some_arr
+        temp_dict['_resource_id'] = playlist_id
+        temp_dict['_resource_type'] = playlist_temp_data.kind
+        return self._put_payload(link, **temp_dict)

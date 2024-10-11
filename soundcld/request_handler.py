@@ -1,6 +1,7 @@
 """
 Request Handler Of SoundCld
 """
+import json
 import urllib.parse
 from dataclasses import dataclass
 from typing import Optional, Dict, Generic, TypeVar, get_origin, Union, List
@@ -132,11 +133,55 @@ class CollectionGetReq(GetReq, Generic[T]):
 
 
 @dataclass
-class PutReq(BaseReq):
+class ComplexReq:
+    """
+    Core Class To Handle Complex
+    Requests Common Functionality.
+    """
+
+    def _load_option(self, client, url, payload):
+        self.complex_cookies = client.cookies
+        self.complex_headers = client.headers
+        self.complex_headers['Content-Length'] = '0'
+        self.complex_headers['x-datadome-clientid'] = client.cookies['datadome']
+        if payload:
+            my_payload = json.dumps(payload)
+            my_payload = my_payload.replace(': "', ':"')
+            my_payload = my_payload.replace(', ', ',')
+            self.complex_headers['Content-Length'] = f'{len(my_payload)}'
+        with requests.options(
+                url=url,
+                timeout=20,
+                cookies=self.complex_cookies,
+                headers=self.complex_headers
+        ) as req:
+            if not f'{req.status_code}'.startswith('2'):
+                print(f'Something Went Wrong. Can\'t Get Options.'
+                      f'Error {req.status_code}')
+                return {'status': 'err'}
+            else:
+                print(f'option : {req.status_code} : {req.text}')
+            req.raise_for_status()
+
+    @staticmethod
+    def _update_datadome(req: requests.Response, client):
+        if 'x-set-cookie' in req.headers.keys():
+            x_set_cookie = req.headers['x-set-cookie']
+            x_set_cookie = x_set_cookie.split(';')
+            for item in x_set_cookie:
+                if 'datadome' in item:
+                    x_set_datadome_cookie = item.split('=')[1]
+                    client.cookies['datadome'] = x_set_datadome_cookie
+                    break
+
+
+@dataclass
+class PutReq(BaseReq, ComplexReq):
     """
     Core Class To Send PUT Request
     To Soundcloud
     """
+
     def _load_href(
             self,
             url: str,
@@ -147,23 +192,114 @@ class PutReq(BaseReq):
             param,
             quote_via=urllib.parse.quote
         )
-        with requests.put(
-                url=url,
-                params=params,
-                json=payload,
-                timeout=20,
-                cookies=self.client.cookies,
-                headers=self.client.headers
-        ) as req:
-            if req.status_code not in [200, 201]:
-                print(f'Something Went Wrong. Error {req.status_code}')
-                return {}
-            req.raise_for_status()
-            return {'status': 'ok'}
+        self._load_option(client=self.client, url=url, payload=payload)
+        req = requests.put(
+            url=url,
+            params=params,
+            json=payload,
+            timeout=20,
+            cookies=self.complex_cookies,
+            headers=self.complex_headers
+        )
+        self._update_datadome(req=req, client=self.client)
+        if not f'{req.status_code}'.startswith('2'):
+            print(f'Something Went Wrong. Error {req.status_code}')
+            return {'status': 'err'}
+        print(f'putting : {req.status_code} : {req.text}')
+        req.raise_for_status()
+        return {'status': 'ok'}
 
-    def __call__(self, payload, **kwargs):
+    def __call__(self, **kwargs):
         self._call_params(**kwargs)
-        data = self._load_href(self.resource_url, self.params, payload)
-        print('User Information Updated.') if data is not None else (
-            print('User Information Not Updated.'))
-        return bool(data)
+        data = self._load_href(self.resource_url, self.params, kwargs)
+        if data['status'] == 'ok':
+            print('User Information Updated.')
+        else:
+            print('User Information Not Updated.')
+
+
+@dataclass
+class DeleteReq(BaseReq, ComplexReq):
+    """
+    Core Class To Send Delete Request
+    To Soundcloud
+    """
+
+    def _load_href(
+            self,
+            url: str,
+            param: dict,
+            payload: dict
+    ) -> Dict:
+        params = urllib.parse.urlencode(
+            param,
+            quote_via=urllib.parse.quote
+        )
+        self._load_option(client=self.client, url=url, payload=payload)
+        req = requests.delete(
+            url=url,
+            params=params,
+            json=payload,
+            timeout=20,
+            cookies=self.complex_cookies,
+            headers=self.complex_headers
+        )
+        self._update_datadome(req=req, client=self.client)
+        if not f'{req.status_code}'.startswith('2'):
+            print(f'Something Went Wrong. Error {req.status_code}')
+            return {'status': 'err'}
+        print(f'deleting : {req.status_code} : {req.text}')
+        req.raise_for_status()
+        return {'status': 'ok'}
+
+    def __call__(self, **kwargs):
+        self._call_params(**kwargs)
+        data = self._load_href(self.resource_url, self.params, kwargs)
+        if data['status'] == 'ok':
+            print('User Information Updated.')
+        else:
+            print('User Information Not Updated.')
+
+
+@dataclass
+class PostReq(BaseReq, ComplexReq):
+    """
+    Core Class To Send Post Request
+    To Soundcloud
+    """
+
+    def _load_href(
+            self,
+            url: str,
+            param: dict,
+            payload: dict
+    ) -> Dict:
+        params = urllib.parse.urlencode(
+            param,
+            quote_via=urllib.parse.quote
+        )
+        self._load_option(client=self.client, url=url, payload=payload)
+        req = requests.post(
+            url=url,
+            params=params,
+            json=payload,
+            timeout=20,
+            cookies=self.complex_cookies,
+            headers=self.complex_headers
+        )
+        self._update_datadome(req=req, client=self.client)
+        if not f'{req.status_code}'.startswith('2'):
+            print(f'Something Went Wrong. Error {req.status_code}')
+            return {'status': 'err'}
+        print(f'posting : {req.status_code} : {req.text}')
+        req.raise_for_status()
+        return {'status': 'ok'}
+
+    def __call__(self, **kwargs):
+        self._call_params(**kwargs)
+        data = self._load_href(self.resource_url, self.params, kwargs)
+
+        if data['status'] == 'ok':
+            print('User Information Updated.')
+        else:
+            print('User Information Not Updated.')

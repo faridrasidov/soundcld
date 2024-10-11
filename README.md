@@ -1,7 +1,8 @@
 <div align="center">
   <h1>SoundCld</h1>
   <p>
-    Python Api Handler For The Internal V2 SoundCloud API. Does Not Require An API Key.
+      Python API handler for the SoundCloud Internal V2 API,
+      allowing interaction without an API key.
   </p>
 
 <!-- Badges -->
@@ -13,21 +14,31 @@
 <a href="https://github.com/faridrasidov/soundcld"><img src="https://img.shields.io/github/forks/faridrasidov/soundcld?style=social" alt="forks - soundcld"></a>
 </div>
 
-****
-**Installation:**
+## Table of Contents
+- [Installation](#installation)
+- [Usage](#usage)
+- [Specifications](#specifications)
+- [Authentication](#authentication)
+- [License](#license)
+
+
+<a name="installation"></a>
+## Installation:
+**Global Installation**
 ```shell
-# For Global
 $ git clone https://github.com/faridrasidov/soundcld
 $ cd soundcld
 $ pip install .
 ```
+**Virtual Environment**
 ```shell
-# For Venv
 $ git clone https://github.com/faridrasidov/soundcld
 $ cd soundcld
 $ path/to/your/venv/pip install .
 ```
-**Example Of Usage:**
+
+<a name="usage"></a>
+## Usage
 ```python
 from soundcld import SoundCloud
 
@@ -38,17 +49,24 @@ for item in search:
     print(item.permalink, item.kind)
 ```
 
-**Specifications:**
+<a name="specifications"></a>
+## Specifications
 
+- **You Can Change Your Profile Info**
+- **45 Get Api Requests Has Been Handled.(Some Of Them Require Auth)**
+- **7 Put Api Requests hs Been Handled. (All Of Them Require Auth)**
+- **1 Post Api Requests hs Been Handled. (All Of Them Require Auth)**
+- **2 Delete Api Requests hs Been Handled. (All Of Them Require Auth)**
 - **Last Valid Generated ID's Automatically Added To 'data.json' File To improve Api Speed.**
-- **46 Get Api Requests Has Been Handled.(Some Of Them Require Auth)**
-- **You Can Change Your Profile Info Too**
-****
+
+
+<a name="authentication"></a>
+## Authentication
 **Notes about `auth`:**
 
 **Some methods require authentication. If you want to use them, you should get the values 
-written at the bottom from your cookies and put them in a package folder ("soundcloud") 
-named cookies.json. You will also need to change your "client_id" in data.json in that folder.**
+written at the bottom from your cookies and put them in file which is in package folder ("soundcloud") 
+named cookies.json. You will also need to change your "client_id" in data.json file in that folder.**
 
 **Save Them Into:**
 
@@ -59,7 +77,8 @@ named cookies.json. You will also need to change your "client_id" in data.json i
 {
   "moe_uuid": "<moe_uuid>",
   "oauth_token": "<oauth_token>",
-  "sc_anonymous_id": "<sc_anonymous_id>"
+  "sc_anonymous_id": "<sc_anonymous_id>",
+  "datadome": "<datadome>"
 }
 ```
 
@@ -71,3 +90,7 @@ named cookies.json. You will also need to change your "client_id" in data.json i
   "app_version": "<app_version>"
 }
 ```
+
+<a name="license"></a>
+## License
+`Soundcld` source code is licensed under the terms of the Boost Software License. See [LICENSE](https://github.com/faridrasidov/soundcld/blob/master/LICENCE.txt) for more information.
