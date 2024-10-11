@@ -155,7 +155,7 @@ class ComplexReq:
                 cookies=self.complex_cookies,
                 headers=self.complex_headers
         ) as req:
-            if req.status_code not in [200, 201]:
+            if not f'{req.status_code}'.startswith('2'):
                 print(f'Something Went Wrong. Can\'t Get Options.'
                       f'Error {req.status_code}')
                 return {'status': 'err'}
@@ -202,7 +202,7 @@ class PutReq(BaseReq, ComplexReq):
             headers=self.complex_headers
         )
         self._update_datadome(req=req, client=self.client)
-        if req.status_code not in [200, 201]:
+        if not f'{req.status_code}'.startswith('2'):
             print(f'Something Went Wrong. Error {req.status_code}')
             return {'status': 'err'}
         print(f'putting : {req.status_code} : {req.text}')
@@ -245,7 +245,7 @@ class DeleteReq(BaseReq, ComplexReq):
             headers=self.complex_headers
         )
         self._update_datadome(req=req, client=self.client)
-        if req.status_code not in [200, 201]:
+        if not f'{req.status_code}'.startswith('2'):
             print(f'Something Went Wrong. Error {req.status_code}')
             return {'status': 'err'}
         print(f'deleting : {req.status_code} : {req.text}')
@@ -288,7 +288,7 @@ class PostReq(BaseReq, ComplexReq):
             headers=self.complex_headers
         )
         self._update_datadome(req=req, client=self.client)
-        if req.status_code not in [200, 201]:
+        if not f'{req.status_code}'.startswith('2'):
             print(f'Something Went Wrong. Error {req.status_code}')
             return {'status': 'err'}
         print(f'posting : {req.status_code} : {req.text}')
