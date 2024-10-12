@@ -167,7 +167,7 @@ class BaseSound:
     def _get_likes(self, req: str, **param) -> Iterator[Like]:
         return CollectionGetReq[Like](self, req, Like)(**param)
 
-    def _get_resolve(self, resolve_link:str):
+    def _get_resolve(self, resolve_link: str):
         return GetReq[SearchItem](self, '/resolve', SearchItem)(url=resolve_link)
 
     def _get_searches(self, req: str, **param) -> Iterator[SearchItem]:
@@ -258,6 +258,8 @@ class BaseSound:
         if not client_id:
             return
         self.data['client_id'] = client_id.group(1)
+        if self.is_client_id_valid():
+            self.__set_conf_last()
 
     def is_client_id_valid(self) -> bool:
         """
@@ -265,7 +267,9 @@ class BaseSound:
         """
         try:
             link = '/tracks/1727047206'
-            GetReq[BasicTrack](self, link, BasicTrack)()
+            resp = GetReq[BasicTrack](self, link, BasicTrack)()
+            if not resp:
+                return False
             return True
         except HTTPError as err:
             if err.response.status_code == 401:
