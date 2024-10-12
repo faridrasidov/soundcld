@@ -32,20 +32,24 @@ def _convert_dict(data, return_type: T):
         'playlist-repost': [PlaylistStreamRepostItem],
         'track-repost': [TrackStreamRepostItem]
     }
-    if union:
-        if 'kind' in data.keys():
-            data_type = data['kind']
-        if 'type' in data.keys():
-            data_type = data['type']
-        if data_type in union_types:
-            for t in union_types[data_type]:
-                try:
-                    return t.from_dict(data)
-                except MissingValueError:
-                    pass
-    else:
-        return return_type.from_dict(data)
-    raise ValueError(f"Could not convert {data} to type {return_type}")
+    try:
+        if union:
+            if 'kind' in data.keys():
+                data_type = data['kind']
+            if 'type' in data.keys():
+                data_type = data['type']
+            if data_type in union_types:
+                for t in union_types[data_type]:
+                    try:
+                        return t.from_dict(data)
+                    except MissingValueError:
+                        pass
+        else:
+            return return_type.from_dict(data)
+        raise ValueError(f"Could not convert {data} to type {return_type}")
+    except Exception as err:
+        print(err)
+        return None
 
 
 @dataclass
