@@ -54,9 +54,9 @@ for item in search:
 
 - **You Can Change Your Profile Info**
 - **45 Get Api Requests Has Been Handled.(Some Of Them Require Auth)**
-- **7 Put Api Requests hs Been Handled. (All Of Them Require Auth)**
-- **1 Post Api Requests hs Been Handled. (All Of Them Require Auth)**
-- **2 Delete Api Requests hs Been Handled. (All Of Them Require Auth)**
+- **7 Put Api Requests Has Been Handled. (All Of Them Require Auth)**
+- **1 Post Api Requests Has Been Handled. (All Of Them Require Auth)**
+- **2 Delete Api Requests Has Been Handled. (All Of Them Require Auth)**
 - **Last Valid Generated ID's Automatically Added To 'data.json' File To improve Api Speed.**
 
 
